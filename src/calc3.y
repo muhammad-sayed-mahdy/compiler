@@ -18,7 +18,7 @@ void freeNode(nodeType *p);
 int ex(nodeType *p);
 int yylex(void);
 
-void yyerror(char *s);
+void yyerror(const std::string& s);
 int sym[26];                    /* symbol table */
 %}
 
@@ -165,18 +165,15 @@ expr:
         ;
 
 typ: 
-    INT                             { $$ = INT}
-    | CHAR                          { $$ = CHAR}
-    | BOOL                          { $$ = BOOL}
-    | DOB                           { $$ = DOB}
+    INT                             { $$ = INT;}
+    | CHAR                          { $$ = CHAR;}
+    | BOOL                          { $$ = BOOL;}
+    | DOB                           { $$ = DOB;}
 %%
 
 nodeType *con(int value) {
-    nodeType *p;
+    nodeType *p = new nodeType();
 
-    /* allocate node */
-    if ((p = malloc(sizeof(nodeType))) == NULL)
-        yyerror("out of memory");
 
     /* copy information */
     p->type = typeCon;
@@ -186,11 +183,8 @@ nodeType *con(int value) {
 }
 
 nodeType *id(int i) {
-    nodeType *p;
+    nodeType *p = new nodeType();
 
-    /* allocate node */
-    if ((p = malloc(sizeof(nodeType))) == NULL)
-        yyerror("out of memory");
 
     /* copy information */
     p->type = typeId;
@@ -201,17 +195,15 @@ nodeType *id(int i) {
 
 nodeType *opr(int oper, int nops, ...) {
     va_list ap;
-    nodeType *p;
+    nodeType *p = new nodeType();
     int i;
 
-    /* allocate node, extending op array */
-    if ((p = malloc(sizeof(nodeType) + (nops-1) * sizeof(nodeType *))) == NULL)
-        yyerror("out of memory");
 
     /* copy information */
     p->type = typeOpr;
     p->opr.oper = oper;
     p->opr.nops = nops;
+    p->opr.op = new nodeType* [nops];
     va_start(ap, nops);
     for (i = 0; i < nops; i++)
         p->opr.op[i] = va_arg(ap, nodeType*);
@@ -220,7 +212,7 @@ nodeType *opr(int oper, int nops, ...) {
 }
 
 nodeType *switchOpr(nodeType* exp, struct switchStatement * ss) {
-    nodeType *p;
+    nodeType *p = new nodeType();
     int i = 2, casesNo = 0, nops = 2;
     struct switchStatement *tmp = ss;
     // No of operands =         1            +        1        +        3*No of Cases       -       1
@@ -233,32 +225,29 @@ nodeType *switchOpr(nodeType* exp, struct switchStatement * ss) {
         nops += 3;
     }
 
-    /* allocate node, extending op array */
-    if ((p = malloc(sizeof(nodeType) + (nops-1) * sizeof(nodeType *))) == NULL)
-        yyerror("out of memory");
-
     /* copy information */
     p->type = typeOpr;
     p->opr.oper = SWITCH;
     p->opr.nops = nops;
+    p->opr.op = new nodeType* [nops];
     p->opr.op[0] = exp;
-    p->opr.op[1] = malloc(sizeof(nodeType));
+    p->opr.op[1] = new nodeType();
     p->opr.op[1]->con.value = casesNo;
     while(ss){
         tmp = ss;
         if(ss->oper == DEFAULT){
-            p->opr.op[i] = malloc(sizeof(nodeType));
+            p->opr.op[i] = new nodeType();
             p->opr.op[i++]->con.value = DEFAULT;
             p->opr.op[i++] = ss->stmnt;
         }
         else{
-            p->opr.op[i] = malloc(sizeof(nodeType));
+            p->opr.op[i] = new nodeType();
             p->opr.op[i++]->con.value = CASE;
             p->opr.op[i++] = ss->exp;
             p->opr.op[i++] = ss->stmnt;
         }
         ss = ss->nxt;
-        free(tmp);
+        delete tmp;
     }
     return p;
 }
@@ -272,12 +261,13 @@ void freeNode(nodeType *p) {
     if (p->type == typeOpr) {
         for (i = 0; i < p->opr.nops; i++)
             freeNode(p->opr.op[i]);
+        delete[] p->opr.op;
     }
-    free (p);
+    delete p;
 }
 
-void yyerror(char *s) {
-    fprintf(stdout, "%s\n", s);
+void yyerror(const std::string& s) {
+    fprintf(stdout, "%s\n", s.c_str());
 }
 
 int main(void) {
@@ -286,7 +276,7 @@ int main(void) {
 }
 
 struct switchStatement * conc(int oper, nodeType * exp, nodeType * stmnt, struct switchStatement * nxt){
-    struct switchStatement * ret = malloc(sizeof(switchstatement));
+    struct switchStatement * ret = new switchstatement();
     ret->oper = oper;
     ret->stmnt = stmnt;
     ret->nxt = nxt;

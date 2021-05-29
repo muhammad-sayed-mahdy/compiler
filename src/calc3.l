@@ -1,8 +1,9 @@
 %{
 #include <stdlib.h>
 #include "calc3.h"
-#include "y.tab.h"
-void yyerror(char *);
+#include "parser.hpp"
+#include <string>
+void yyerror(const std::string& s);
 %}
 
 %%

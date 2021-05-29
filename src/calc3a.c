@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "calc3.h"
-#include "y.tab.h"
+#include "parser.hpp"
 
 int ex(nodeType *p) {
     if (!p) return 0;

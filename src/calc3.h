@@ -14,7 +14,7 @@ typedef struct {
 typedef struct {
     int oper;                   /* operator */
     int nops;                   /* number of operands */
-    struct nodeTypeTag *op[1];	/* operands, extended at runtime */
+    struct nodeTypeTag **op;	/* operands, extended at runtime */
 } oprNodeType;
 
 typedef struct nodeTypeTag {
