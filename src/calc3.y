@@ -37,7 +37,7 @@ int sym[26];                    /* symbol table */
 %token <cValue> CHARACTER
 %token <bValue> BOOLEAN
 %token <sIndex> VARIABLE
-%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT INT DOB CHAR BOOL /*CONST*/
+%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT INT DOB CHAR BOOL CONST RETURN
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -53,7 +53,7 @@ int sym[26];                    /* symbol table */
 %left '*' '/' '%'
 %nonassoc UMINUS UPLUS '~' '!'
 
-%type <nPtr> stmt expr stmt_list const_expr typ
+%type <nPtr> stmt expr stmt_list const_expr decl param_list arg_list
 %type <swtch> switch_stmt
 
 %%
@@ -67,19 +67,40 @@ function:
         | /* NULL */
         ;
 
+decl:
+    typ VARIABLE                                          { $$ = id($2); }
+    | typ VARIABLE '=' expr                               { $$ = opr('=', 2, id($2), $4); }
+    | CONST typ VARIABLE                                  { $$ = id($3); }
+    | CONST typ VARIABLE '=' expr                         { $$ = opr('=', 2, id($3), $5); }
+    ;
+
 stmt:
           ';'                                                    { $$ = opr(';', 2, NULL, NULL); }
         | expr ';'                                               { $$ = $1; }
         | PRINT expr ';'                                         { $$ = opr(PRINT, 1, $2); }
         | WHILE '(' expr ')' stmt                                { $$ = opr(WHILE, 2, $3, $5); }
-        | typ VARIABLE ';'                                       
-        | typ VARIABLE '=' expr ';'                              
+        | decl ';'                                               { $$ = $1; }
+        | typ VARIABLE '(' param_list ')' stmt                   { $$ = NULL; }
+        | RETURN expr ';'                                        { $$ = opr(RETURN, 1, $2); }
+        | RETURN ';'                                             { $$ = opr(RETURN, 0); }
         | REPEAT stmt  UNTIL '(' expr ')' ';'                    { $$ = opr(REPEAT, 2, $2, $5); }
         | FOR '(' expr ';' expr ';' expr ')' stmt                { $$ = opr(FOR, 4, $3, $5, $7, $9); }
         | SWITCH '(' expr ')' '{' switch_stmt '}'                { $$ = switchOpr( $3, $6); }
         | IF '(' expr ')' stmt %prec IFX                         { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt                         { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'                                      { $$ = $2; }
+        ;
+
+param_list:
+        decl                                                     { $$ = NULL; }
+        | param_list ',' decl                                    { $$ = NULL; }
+        | /* NULL */                                             { $$ = NULL; }
+        ;
+
+arg_list:
+        expr                                                     { $$ = NULL; }
+        | arg_list ',' expr                                { $$ = NULL; }
+        | /* NULL */                                             { $$ = NULL; }
         ;
 
 switch_stmt:
@@ -110,7 +131,7 @@ const_expr:
         | const_expr '-' const_expr         { $$ = opr('-', 2, $1, $3); }
         | const_expr '*' const_expr         { $$ = opr('*', 2, $1, $3); }
         | const_expr '/' const_expr         { $$ = opr('/', 2, $1, $3); }
-        | const_expr '%' const_expr             { $$ = opr('%', 2, $1, $3); }
+        | const_expr '%' const_expr         { $$ = opr('%', 2, $1, $3); }
         | const_expr '<' const_expr         { $$ = opr('<', 2, $1, $3); }
         | const_expr '>' const_expr         { $$ = opr('>', 2, $1, $3); }
         | const_expr GE const_expr          { $$ = opr(GE, 2, $1, $3); }
@@ -128,6 +149,7 @@ expr:
         | CHARACTER                 { $$ = con($1); }
         | BOOLEAN                   { $$ = con($1); }
         | VARIABLE                  { $$ = id($1); }
+        | VARIABLE '(' arg_list ')' { $$ = NULL; }
         | VARIABLE '=' expr         { $$ = opr('=', 2, id($1), $3); }
         | VARIABLE PLUS_EQ expr     { $$ = opr(PLUS_EQ, 2, id($1), $3); }
         | VARIABLE MINUS_EQ expr    { $$ = opr(MINUS_EQ, 2, id($1), $3); }
@@ -165,10 +187,10 @@ expr:
         ;
 
 typ: 
-    INT                             { $$ = INT;}
-    | CHAR                          { $$ = CHAR;}
-    | BOOL                          { $$ = BOOL;}
-    | DOB                           { $$ = DOB;}
+    INT                             
+    | CHAR                          
+    | BOOL                          
+    | DOB                           
 %%
 
 nodeType *con(int value) {

@@ -40,6 +40,8 @@ void yyerror(const std::string& s);
 "double"        return DOB;
 "char"          return CHAR;
 "bool"          return BOOL;
+"const"         return CONST;
+"return"        return RETURN;
 
 "false"         {
                     yylval.bValue = false;
@@ -51,7 +53,7 @@ void yyerror(const std::string& s);
                     return BOOLEAN;
                 }
 
-[-()<>=+*/%;{}.|&~^!:] {
+[-()<>=+*/%;{}.|&~^!:,] {
                 return *yytext;
              }
 

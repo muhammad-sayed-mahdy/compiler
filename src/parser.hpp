@@ -67,28 +67,30 @@ extern int yydebug;
     DOB = 273,
     CHAR = 274,
     BOOL = 275,
-    IFX = 276,
-    ELSE = 277,
-    PLUS_EQ = 278,
-    MINUS_EQ = 279,
-    MUL_EQ = 280,
-    DIV_EQ = 281,
-    MOD_EQ = 282,
-    SH_LE_EQ = 283,
-    SH_RI_EQ = 284,
-    AND_EQ = 285,
-    XOR_EQ = 286,
-    OR_EQ = 287,
-    OR = 288,
-    AND = 289,
-    GE = 290,
-    LE = 291,
-    EQ = 292,
-    NE = 293,
-    SHIFT_LEFT = 294,
-    SHIFT_RIGHT = 295,
-    UMINUS = 296,
-    UPLUS = 297
+    CONST = 276,
+    RETURN = 277,
+    IFX = 278,
+    ELSE = 279,
+    PLUS_EQ = 280,
+    MINUS_EQ = 281,
+    MUL_EQ = 282,
+    DIV_EQ = 283,
+    MOD_EQ = 284,
+    SH_LE_EQ = 285,
+    SH_RI_EQ = 286,
+    AND_EQ = 287,
+    XOR_EQ = 288,
+    OR_EQ = 289,
+    OR = 290,
+    AND = 291,
+    GE = 292,
+    LE = 293,
+    EQ = 294,
+    NE = 295,
+    SHIFT_LEFT = 296,
+    SHIFT_RIGHT = 297,
+    UMINUS = 298,
+    UPLUS = 299
   };
 #endif
 /* Tokens.  */
@@ -110,28 +112,30 @@ extern int yydebug;
 #define DOB 273
 #define CHAR 274
 #define BOOL 275
-#define IFX 276
-#define ELSE 277
-#define PLUS_EQ 278
-#define MINUS_EQ 279
-#define MUL_EQ 280
-#define DIV_EQ 281
-#define MOD_EQ 282
-#define SH_LE_EQ 283
-#define SH_RI_EQ 284
-#define AND_EQ 285
-#define XOR_EQ 286
-#define OR_EQ 287
-#define OR 288
-#define AND 289
-#define GE 290
-#define LE 291
-#define EQ 292
-#define NE 293
-#define SHIFT_LEFT 294
-#define SHIFT_RIGHT 295
-#define UMINUS 296
-#define UPLUS 297
+#define CONST 276
+#define RETURN 277
+#define IFX 278
+#define ELSE 279
+#define PLUS_EQ 280
+#define MINUS_EQ 281
+#define MUL_EQ 282
+#define DIV_EQ 283
+#define MOD_EQ 284
+#define SH_LE_EQ 285
+#define SH_RI_EQ 286
+#define AND_EQ 287
+#define XOR_EQ 288
+#define OR_EQ 289
+#define OR 290
+#define AND 291
+#define GE 292
+#define LE 293
+#define EQ 294
+#define NE 295
+#define SHIFT_LEFT 296
+#define SHIFT_RIGHT 297
+#define UMINUS 298
+#define UPLUS 299
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -147,7 +151,7 @@ union YYSTYPE
     nodeType *nPtr;                     /* node pointer */
     switchstatement *swtch;  
 
-#line 151 "parser.hpp"
+#line 155 "parser.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;
