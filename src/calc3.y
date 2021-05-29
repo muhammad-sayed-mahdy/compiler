@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "calc3.h"
+#include <string>
 
 /* prototypes */
 
@@ -23,14 +24,20 @@ int sym[26];                    /* symbol table */
 
 %union {
     int iValue;                         /* integer value */
+    double dValue;                      /* double value */
+    char cValue;                        /* char value */
+    bool bValue;                        /* boolean value */
     char sIndex;                        /* symbol table index */
     nodeType *nPtr;                     /* node pointer */
     switchstatement *swtch;  
 };
 
 %token <iValue> INTEGER
+%token <dValue> DOUBLE
+%token <cValue> CHARACTER
+%token <bValue> BOOLEAN
 %token <sIndex> VARIABLE
-%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT /*CONST*/
+%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT INT DOB CHAR BOOL /*CONST*/
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -46,7 +53,7 @@ int sym[26];                    /* symbol table */
 %left '*' '/' '%'
 %nonassoc UMINUS UPLUS '~' '!'
 
-%type <nPtr> stmt expr stmt_list const_expr
+%type <nPtr> stmt expr stmt_list const_expr typ
 %type <swtch> switch_stmt
 
 %%
@@ -65,6 +72,8 @@ stmt:
         | expr ';'                                               { $$ = $1; }
         | PRINT expr ';'                                         { $$ = opr(PRINT, 1, $2); }
         | WHILE '(' expr ')' stmt                                { $$ = opr(WHILE, 2, $3, $5); }
+        | typ VARIABLE ';'                                       
+        | typ VARIABLE '=' expr ';'                              
         | REPEAT stmt  UNTIL '(' expr ')' ';'                    { $$ = opr(REPEAT, 2, $2, $5); }
         | FOR '(' expr ';' expr ';' expr ')' stmt                { $$ = opr(FOR, 4, $3, $5, $7, $9); }
         | SWITCH '(' expr ')' '{' switch_stmt '}'                { $$ = switchOpr( $3, $6); }
@@ -86,6 +95,9 @@ stmt_list:
 
 const_expr:
           INTEGER                           { $$ = con($1); }
+        | DOUBLE                            { $$ = con($1); }
+        | CHARACTER                         { $$ = con($1); }
+        | BOOLEAN                           { $$ = con($1); }
         | '!' const_expr                    { $$ = opr('!', 1, $2); }
         | '~' const_expr                    { $$ = opr('~', 1, $2); }
         | '-' const_expr %prec UMINUS       { $$ = opr(UMINUS, 1, $2); }
@@ -98,17 +110,23 @@ const_expr:
         | const_expr '-' const_expr         { $$ = opr('-', 2, $1, $3); }
         | const_expr '*' const_expr         { $$ = opr('*', 2, $1, $3); }
         | const_expr '/' const_expr         { $$ = opr('/', 2, $1, $3); }
+        | const_expr '%' const_expr             { $$ = opr('%', 2, $1, $3); }
         | const_expr '<' const_expr         { $$ = opr('<', 2, $1, $3); }
         | const_expr '>' const_expr         { $$ = opr('>', 2, $1, $3); }
         | const_expr GE const_expr          { $$ = opr(GE, 2, $1, $3); }
         | const_expr LE const_expr          { $$ = opr(LE, 2, $1, $3); }
         | const_expr NE const_expr          { $$ = opr(NE, 2, $1, $3); }
         | const_expr EQ const_expr          { $$ = opr(EQ, 2, $1, $3); }
-        | '(' const_expr ')'                { $$ = $2; }
+        | const_expr SHIFT_LEFT const_expr      { $$ = opr(SHIFT_LEFT, 2, $1, $3); }
+        | const_expr SHIFT_RIGHT const_expr     { $$ = opr(SHIFT_RIGHT, 2, $1, $3); }
+        | '(' const_expr ')'              { $$ = $2; }
         ;
 
 expr:
      INTEGER                        { $$ = con($1); }
+        | DOUBLE                    { $$ = con($1); }
+        | CHARACTER                 { $$ = con($1); }
+        | BOOLEAN                   { $$ = con($1); }
         | VARIABLE                  { $$ = id($1); }
         | VARIABLE '=' expr         { $$ = opr('=', 2, id($1), $3); }
         | VARIABLE PLUS_EQ expr     { $$ = opr(PLUS_EQ, 2, id($1), $3); }
@@ -145,7 +163,12 @@ expr:
         | expr SHIFT_RIGHT expr     { $$ = opr(SHIFT_RIGHT, 2, $1, $3); }
         | '(' expr ')'              { $$ = $2; }
         ;
-    
+
+typ: 
+    INT                             { $$ = INT}
+    | CHAR                          { $$ = CHAR}
+    | BOOL                          { $$ = BOOL}
+    | DOB                           { $$ = DOB}
 %%
 
 nodeType *con(int value) {

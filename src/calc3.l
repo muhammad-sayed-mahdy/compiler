@@ -35,6 +35,20 @@ void yyerror(char *);
 "case"          return CASE;
 "default"       return DEFAULT;
 "print"         return PRINT;
+"int"           return INT;
+"double"        return DOB;
+"char"          return CHAR;
+"bool"          return BOOL;
+
+"false"         {
+                    yylval.bValue = false;
+                    return BOOLEAN;
+                }
+
+"true"          {
+                    yylval.bValue = true;
+                    return BOOLEAN;
+                }
 
 [-()<>=+*/%;{}.|&~^!:] {
                 return *yytext;
@@ -58,6 +72,15 @@ void yyerror(char *);
                 return INTEGER;
             }
 
+(0|[1-9][0-9]*).(0|[1-9][0-9]*)  {
+                yylval.dValue = atof(yytext);
+                return DOUBLE;
+            }
+
+'[^'\n]'   {
+                    yylval.cValue = yytext[1];
+                    return CHARACTER;
+                }
 
 [ \t\n]+        ;       /* ignore whitespace */
 

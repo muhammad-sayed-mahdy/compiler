@@ -1,5 +1,6 @@
+#line 2 "lexer.cpp"
 
-#line 3 "lex.yy.c"
+#line 4 "lexer.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -522,8 +523,8 @@ char *yytext;
 #include "calc3.h"
 #include "y.tab.h"
 void yyerror(char *);
-#line 526 "lex.yy.c"
-#line 527 "lex.yy.c"
+#line 527 "lexer.cpp"
+#line 528 "lexer.cpp"
 
 #define INITIAL 0
 
@@ -743,7 +744,7 @@ YY_DECL
 #line 8 "calc3.l"
 
 
-#line 747 "lex.yy.c"
+#line 748 "lexer.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1011,7 +1012,7 @@ case 39:
 YY_RULE_SETUP
 #line 75 "calc3.l"
 {
-                yylval.dValue = stod(yytext);
+                yylval.dValue = atof(yytext);
                 return DOUBLE;
             }
 	YY_BREAK
@@ -1020,7 +1021,7 @@ YY_RULE_SETUP
 #line 80 "calc3.l"
 {
                     yylval.cValue = yytext[1];
-                    return CHARACTER
+                    return CHARACTER;
                 }
 	YY_BREAK
 case 41:
@@ -1039,7 +1040,7 @@ YY_RULE_SETUP
 #line 88 "calc3.l"
 ECHO;
 	YY_BREAK
-#line 1043 "lex.yy.c"
+#line 1044 "lexer.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
