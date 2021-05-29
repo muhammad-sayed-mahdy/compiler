@@ -544,10 +544,10 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "calc3.l"
-#line 2 "calc3.l"
+#line 1 "lexer.l"
+#line 2 "lexer.l"
 #include <stdlib.h>
-#include "calc3.h"
+#include "compiler.h"
 #include "parser.hpp"
 #include <string>
 void yyerror(const std::string& s);
@@ -769,7 +769,7 @@ YY_DECL
 		}
 
 	{
-#line 9 "calc3.l"
+#line 9 "lexer.l"
 
 
 #line 776 "lexer.cpp"
@@ -831,177 +831,177 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 11 "calc3.l"
+#line 11 "lexer.l"
 return GE;
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 12 "calc3.l"
+#line 12 "lexer.l"
 return LE;
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 13 "calc3.l"
+#line 13 "lexer.l"
 return EQ;
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 14 "calc3.l"
+#line 14 "lexer.l"
 return NE;
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 15 "calc3.l"
+#line 15 "lexer.l"
 return AND;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 16 "calc3.l"
+#line 16 "lexer.l"
 return OR;
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 17 "calc3.l"
+#line 17 "lexer.l"
 return SHIFT_LEFT;
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 18 "calc3.l"
+#line 18 "lexer.l"
 return SHIFT_RIGHT;
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 19 "calc3.l"
+#line 19 "lexer.l"
 return PLUS_EQ;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 20 "calc3.l"
+#line 20 "lexer.l"
 return MINUS_EQ;
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 21 "calc3.l"
+#line 21 "lexer.l"
 return MUL_EQ;
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 22 "calc3.l"
+#line 22 "lexer.l"
 return DIV_EQ;
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 23 "calc3.l"
+#line 23 "lexer.l"
 return MOD_EQ;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 24 "calc3.l"
+#line 24 "lexer.l"
 return SH_LE_EQ;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 25 "calc3.l"
+#line 25 "lexer.l"
 return SH_RI_EQ;
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 26 "calc3.l"
+#line 26 "lexer.l"
 return AND_EQ;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 27 "calc3.l"
+#line 27 "lexer.l"
 return XOR_EQ;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 28 "calc3.l"
+#line 28 "lexer.l"
 return OR_EQ;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 29 "calc3.l"
+#line 29 "lexer.l"
 return WHILE;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 30 "calc3.l"
+#line 30 "lexer.l"
 return FOR;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 31 "calc3.l"
+#line 31 "lexer.l"
 return REPEAT;
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 32 "calc3.l"
+#line 32 "lexer.l"
 return UNTIL;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 33 "calc3.l"
+#line 33 "lexer.l"
 return IF;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 34 "calc3.l"
+#line 34 "lexer.l"
 return ELSE;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 35 "calc3.l"
+#line 35 "lexer.l"
 return SWITCH;
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 36 "calc3.l"
+#line 36 "lexer.l"
 return CASE;
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 37 "calc3.l"
+#line 37 "lexer.l"
 return DEFAULT;
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 38 "calc3.l"
+#line 38 "lexer.l"
 return PRINT;
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 39 "calc3.l"
+#line 39 "lexer.l"
 return INT;
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 40 "calc3.l"
+#line 40 "lexer.l"
 return DOB;
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 41 "calc3.l"
+#line 41 "lexer.l"
 return CHAR;
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 42 "calc3.l"
+#line 42 "lexer.l"
 return BOOL;
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 43 "calc3.l"
+#line 43 "lexer.l"
 return CONST;
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 44 "calc3.l"
+#line 44 "lexer.l"
 return RETURN;
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 46 "calc3.l"
+#line 46 "lexer.l"
 {
                     yylval.bValue = false;
                     return BOOLEAN;
@@ -1009,7 +1009,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 51 "calc3.l"
+#line 51 "lexer.l"
 {
                     yylval.bValue = true;
                     return BOOLEAN;
@@ -1017,14 +1017,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 56 "calc3.l"
+#line 56 "lexer.l"
 {
                 return *yytext;
              }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 60 "calc3.l"
+#line 60 "lexer.l"
 { 
                 yylval.sIndex = *yytext - 'a';
                 return VARIABLE;
@@ -1032,7 +1032,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 68 "calc3.l"
+#line 68 "lexer.l"
 {
                 yylval.iValue = atoi(yytext);
                 return INTEGER;
@@ -1040,7 +1040,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 73 "calc3.l"
+#line 73 "lexer.l"
 {
                 yylval.iValue = atoi(yytext);
                 return INTEGER;
@@ -1048,7 +1048,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 78 "calc3.l"
+#line 78 "lexer.l"
 {
                 yylval.dValue = atof(yytext);
                 return DOUBLE;
@@ -1056,7 +1056,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 83 "calc3.l"
+#line 83 "lexer.l"
 {
                     yylval.cValue = yytext[1];
                     return CHARACTER;
@@ -1065,17 +1065,17 @@ YY_RULE_SETUP
 case 43:
 /* rule 43 can match eol */
 YY_RULE_SETUP
-#line 88 "calc3.l"
+#line 88 "lexer.l"
 ;       /* ignore whitespace */
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 90 "calc3.l"
+#line 90 "lexer.l"
 yyerror("Unknown character");
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 91 "calc3.l"
+#line 91 "lexer.l"
 ECHO;
 	YY_BREAK
 #line 1082 "lexer.cpp"
@@ -2079,7 +2079,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 91 "calc3.l"
+#line 91 "lexer.l"
 
 
 int yywrap(void) {

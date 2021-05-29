@@ -1,6 +1,6 @@
 %{
 #include <stdlib.h>
-#include "calc3.h"
+#include "compiler.h"
 #include "parser.hpp"
 #include <string>
 void yyerror(const std::string& s);

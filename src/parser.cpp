@@ -66,12 +66,12 @@
 
 
 /* First part of user prologue.  */
-#line 1 "calc3.y"
+#line 1 "parser.y"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include "calc3.h"
+#include "compiler.h"
 #include <string>
 
 /* prototypes */
@@ -230,7 +230,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 25 "calc3.y"
+#line 25 "parser.y"
 
     int iValue;                         /* integer value */
     double dValue;                      /* double value */
@@ -1665,583 +1665,583 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 62 "calc3.y"
+#line 62 "parser.y"
                                 { exit(0); }
 #line 1671 "parser.cpp"
     break;
 
   case 3:
-#line 66 "calc3.y"
+#line 66 "parser.y"
                                 { ex((yyvsp[0].nPtr)); freeNode((yyvsp[0].nPtr)); }
 #line 1677 "parser.cpp"
     break;
 
   case 5:
-#line 71 "calc3.y"
+#line 71 "parser.y"
                                                           { (yyval.nPtr) = id((yyvsp[0].sIndex)); }
 #line 1683 "parser.cpp"
     break;
 
   case 6:
-#line 72 "calc3.y"
+#line 72 "parser.y"
                                                           { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 1689 "parser.cpp"
     break;
 
   case 7:
-#line 73 "calc3.y"
+#line 73 "parser.y"
                                                           { (yyval.nPtr) = id((yyvsp[0].sIndex)); }
 #line 1695 "parser.cpp"
     break;
 
   case 8:
-#line 74 "calc3.y"
+#line 74 "parser.y"
                                                           { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 1701 "parser.cpp"
     break;
 
   case 9:
-#line 78 "calc3.y"
+#line 78 "parser.y"
                                                                  { (yyval.nPtr) = opr(';', 2, NULL, NULL); }
 #line 1707 "parser.cpp"
     break;
 
   case 10:
-#line 79 "calc3.y"
+#line 79 "parser.y"
                                                                  { (yyval.nPtr) = (yyvsp[-1].nPtr); }
 #line 1713 "parser.cpp"
     break;
 
   case 11:
-#line 80 "calc3.y"
+#line 80 "parser.y"
                                                                  { (yyval.nPtr) = opr(PRINT, 1, (yyvsp[-1].nPtr)); }
 #line 1719 "parser.cpp"
     break;
 
   case 12:
-#line 81 "calc3.y"
+#line 81 "parser.y"
                                                                  { (yyval.nPtr) = opr(WHILE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1725 "parser.cpp"
     break;
 
   case 13:
-#line 82 "calc3.y"
+#line 82 "parser.y"
                                                                  { (yyval.nPtr) = (yyvsp[-1].nPtr); }
 #line 1731 "parser.cpp"
     break;
 
   case 14:
-#line 83 "calc3.y"
+#line 83 "parser.y"
                                                                  { (yyval.nPtr) = NULL; }
 #line 1737 "parser.cpp"
     break;
 
   case 15:
-#line 84 "calc3.y"
+#line 84 "parser.y"
                                                                  { (yyval.nPtr) = opr(RETURN, 1, (yyvsp[-1].nPtr)); }
 #line 1743 "parser.cpp"
     break;
 
   case 16:
-#line 85 "calc3.y"
+#line 85 "parser.y"
                                                                  { (yyval.nPtr) = opr(RETURN, 0); }
 #line 1749 "parser.cpp"
     break;
 
   case 17:
-#line 86 "calc3.y"
+#line 86 "parser.y"
                                                                  { (yyval.nPtr) = opr(REPEAT, 2, (yyvsp[-5].nPtr), (yyvsp[-2].nPtr)); }
 #line 1755 "parser.cpp"
     break;
 
   case 18:
-#line 87 "calc3.y"
+#line 87 "parser.y"
                                                                  { (yyval.nPtr) = opr(FOR, 4, (yyvsp[-6].nPtr), (yyvsp[-4].nPtr), (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1761 "parser.cpp"
     break;
 
   case 19:
-#line 88 "calc3.y"
+#line 88 "parser.y"
                                                                  { (yyval.nPtr) = switchOpr( (yyvsp[-4].nPtr), (yyvsp[-1].swtch)); }
 #line 1767 "parser.cpp"
     break;
 
   case 20:
-#line 89 "calc3.y"
+#line 89 "parser.y"
                                                                  { (yyval.nPtr) = opr(IF, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1773 "parser.cpp"
     break;
 
   case 21:
-#line 90 "calc3.y"
+#line 90 "parser.y"
                                                                  { (yyval.nPtr) = opr(IF, 3, (yyvsp[-4].nPtr), (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1779 "parser.cpp"
     break;
 
   case 22:
-#line 91 "calc3.y"
+#line 91 "parser.y"
                                                                  { (yyval.nPtr) = (yyvsp[-1].nPtr); }
 #line 1785 "parser.cpp"
     break;
 
   case 23:
-#line 95 "calc3.y"
+#line 95 "parser.y"
                                                                  { (yyval.nPtr) = NULL; }
 #line 1791 "parser.cpp"
     break;
 
   case 24:
-#line 96 "calc3.y"
+#line 96 "parser.y"
                                                                  { (yyval.nPtr) = NULL; }
 #line 1797 "parser.cpp"
     break;
 
   case 25:
-#line 97 "calc3.y"
+#line 97 "parser.y"
                                                                  { (yyval.nPtr) = NULL; }
 #line 1803 "parser.cpp"
     break;
 
   case 26:
-#line 101 "calc3.y"
+#line 101 "parser.y"
                                                                  { (yyval.nPtr) = NULL; }
 #line 1809 "parser.cpp"
     break;
 
   case 27:
-#line 102 "calc3.y"
+#line 102 "parser.y"
                                                            { (yyval.nPtr) = NULL; }
 #line 1815 "parser.cpp"
     break;
 
   case 28:
-#line 103 "calc3.y"
+#line 103 "parser.y"
                                                                  { (yyval.nPtr) = NULL; }
 #line 1821 "parser.cpp"
     break;
 
   case 29:
-#line 107 "calc3.y"
+#line 107 "parser.y"
                                                                        { (yyval.swtch) = conc(CASE, (yyvsp[-2].nPtr), (yyvsp[0].nPtr), NULL);}
 #line 1827 "parser.cpp"
     break;
 
   case 30:
-#line 108 "calc3.y"
+#line 108 "parser.y"
                                                                        { (yyval.swtch) = conc(CASE, (yyvsp[-3].nPtr), (yyvsp[-1].nPtr), (yyvsp[0].swtch));}
 #line 1833 "parser.cpp"
     break;
 
   case 31:
-#line 109 "calc3.y"
+#line 109 "parser.y"
                                                                  { (yyval.swtch) = conc(DEFAULT, NULL, (yyvsp[0].nPtr), NULL);}
 #line 1839 "parser.cpp"
     break;
 
   case 32:
-#line 113 "calc3.y"
+#line 113 "parser.y"
                                 { (yyval.nPtr) = (yyvsp[0].nPtr); }
 #line 1845 "parser.cpp"
     break;
 
   case 33:
-#line 114 "calc3.y"
+#line 114 "parser.y"
                                 { (yyval.nPtr) = opr(';', 2, (yyvsp[-1].nPtr), (yyvsp[0].nPtr)); }
 #line 1851 "parser.cpp"
     break;
 
   case 34:
-#line 118 "calc3.y"
+#line 118 "parser.y"
                                             { (yyval.nPtr) = con((yyvsp[0].iValue)); }
 #line 1857 "parser.cpp"
     break;
 
   case 35:
-#line 119 "calc3.y"
+#line 119 "parser.y"
                                             { (yyval.nPtr) = con((yyvsp[0].dValue)); }
 #line 1863 "parser.cpp"
     break;
 
   case 36:
-#line 120 "calc3.y"
+#line 120 "parser.y"
                                             { (yyval.nPtr) = con((yyvsp[0].cValue)); }
 #line 1869 "parser.cpp"
     break;
 
   case 37:
-#line 121 "calc3.y"
+#line 121 "parser.y"
                                             { (yyval.nPtr) = con((yyvsp[0].bValue)); }
 #line 1875 "parser.cpp"
     break;
 
   case 38:
-#line 122 "calc3.y"
+#line 122 "parser.y"
                                             { (yyval.nPtr) = opr('!', 1, (yyvsp[0].nPtr)); }
 #line 1881 "parser.cpp"
     break;
 
   case 39:
-#line 123 "calc3.y"
+#line 123 "parser.y"
                                             { (yyval.nPtr) = opr('~', 1, (yyvsp[0].nPtr)); }
 #line 1887 "parser.cpp"
     break;
 
   case 40:
-#line 124 "calc3.y"
+#line 124 "parser.y"
                                             { (yyval.nPtr) = opr(UMINUS, 1, (yyvsp[0].nPtr)); }
 #line 1893 "parser.cpp"
     break;
 
   case 41:
-#line 125 "calc3.y"
+#line 125 "parser.y"
                                             { (yyval.nPtr) = opr(OR, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1899 "parser.cpp"
     break;
 
   case 42:
-#line 126 "calc3.y"
+#line 126 "parser.y"
                                             { (yyval.nPtr) = opr(AND, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1905 "parser.cpp"
     break;
 
   case 43:
-#line 127 "calc3.y"
+#line 127 "parser.y"
                                             { (yyval.nPtr) = opr('|', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1911 "parser.cpp"
     break;
 
   case 44:
-#line 128 "calc3.y"
+#line 128 "parser.y"
                                             { (yyval.nPtr) = opr('^', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1917 "parser.cpp"
     break;
 
   case 45:
-#line 129 "calc3.y"
+#line 129 "parser.y"
                                             { (yyval.nPtr) = opr('&', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1923 "parser.cpp"
     break;
 
   case 46:
-#line 130 "calc3.y"
+#line 130 "parser.y"
                                             { (yyval.nPtr) = opr('+', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1929 "parser.cpp"
     break;
 
   case 47:
-#line 131 "calc3.y"
+#line 131 "parser.y"
                                             { (yyval.nPtr) = opr('-', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1935 "parser.cpp"
     break;
 
   case 48:
-#line 132 "calc3.y"
+#line 132 "parser.y"
                                             { (yyval.nPtr) = opr('*', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1941 "parser.cpp"
     break;
 
   case 49:
-#line 133 "calc3.y"
+#line 133 "parser.y"
                                             { (yyval.nPtr) = opr('/', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1947 "parser.cpp"
     break;
 
   case 50:
-#line 134 "calc3.y"
+#line 134 "parser.y"
                                             { (yyval.nPtr) = opr('%', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1953 "parser.cpp"
     break;
 
   case 51:
-#line 135 "calc3.y"
+#line 135 "parser.y"
                                             { (yyval.nPtr) = opr('<', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1959 "parser.cpp"
     break;
 
   case 52:
-#line 136 "calc3.y"
+#line 136 "parser.y"
                                             { (yyval.nPtr) = opr('>', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1965 "parser.cpp"
     break;
 
   case 53:
-#line 137 "calc3.y"
+#line 137 "parser.y"
                                             { (yyval.nPtr) = opr(GE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1971 "parser.cpp"
     break;
 
   case 54:
-#line 138 "calc3.y"
+#line 138 "parser.y"
                                             { (yyval.nPtr) = opr(LE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1977 "parser.cpp"
     break;
 
   case 55:
-#line 139 "calc3.y"
+#line 139 "parser.y"
                                             { (yyval.nPtr) = opr(NE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1983 "parser.cpp"
     break;
 
   case 56:
-#line 140 "calc3.y"
+#line 140 "parser.y"
                                             { (yyval.nPtr) = opr(EQ, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1989 "parser.cpp"
     break;
 
   case 57:
-#line 141 "calc3.y"
+#line 141 "parser.y"
                                                 { (yyval.nPtr) = opr(SHIFT_LEFT, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1995 "parser.cpp"
     break;
 
   case 58:
-#line 142 "calc3.y"
+#line 142 "parser.y"
                                                 { (yyval.nPtr) = opr(SHIFT_RIGHT, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2001 "parser.cpp"
     break;
 
   case 59:
-#line 143 "calc3.y"
+#line 143 "parser.y"
                                           { (yyval.nPtr) = (yyvsp[-1].nPtr); }
 #line 2007 "parser.cpp"
     break;
 
   case 60:
-#line 147 "calc3.y"
+#line 147 "parser.y"
                                     { (yyval.nPtr) = con((yyvsp[0].iValue)); }
 #line 2013 "parser.cpp"
     break;
 
   case 61:
-#line 148 "calc3.y"
+#line 148 "parser.y"
                                     { (yyval.nPtr) = con((yyvsp[0].dValue)); }
 #line 2019 "parser.cpp"
     break;
 
   case 62:
-#line 149 "calc3.y"
+#line 149 "parser.y"
                                     { (yyval.nPtr) = con((yyvsp[0].cValue)); }
 #line 2025 "parser.cpp"
     break;
 
   case 63:
-#line 150 "calc3.y"
+#line 150 "parser.y"
                                     { (yyval.nPtr) = con((yyvsp[0].bValue)); }
 #line 2031 "parser.cpp"
     break;
 
   case 64:
-#line 151 "calc3.y"
+#line 151 "parser.y"
                                     { (yyval.nPtr) = id((yyvsp[0].sIndex)); }
 #line 2037 "parser.cpp"
     break;
 
   case 65:
-#line 152 "calc3.y"
+#line 152 "parser.y"
                                     { (yyval.nPtr) = NULL; }
 #line 2043 "parser.cpp"
     break;
 
   case 66:
-#line 153 "calc3.y"
+#line 153 "parser.y"
                                     { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 2049 "parser.cpp"
     break;
 
   case 67:
-#line 154 "calc3.y"
+#line 154 "parser.y"
                                     { (yyval.nPtr) = opr(PLUS_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 2055 "parser.cpp"
     break;
 
   case 68:
-#line 155 "calc3.y"
+#line 155 "parser.y"
                                     { (yyval.nPtr) = opr(MINUS_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 2061 "parser.cpp"
     break;
 
   case 69:
-#line 156 "calc3.y"
+#line 156 "parser.y"
                                     { (yyval.nPtr) = opr(MUL_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 2067 "parser.cpp"
     break;
 
   case 70:
-#line 157 "calc3.y"
+#line 157 "parser.y"
                                     { (yyval.nPtr) = opr(DIV_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 2073 "parser.cpp"
     break;
 
   case 71:
-#line 158 "calc3.y"
+#line 158 "parser.y"
                                     { (yyval.nPtr) = opr(PLUS_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 2079 "parser.cpp"
     break;
 
   case 72:
-#line 159 "calc3.y"
+#line 159 "parser.y"
                                     { (yyval.nPtr) = opr(SH_LE_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 2085 "parser.cpp"
     break;
 
   case 73:
-#line 160 "calc3.y"
+#line 160 "parser.y"
                                     { (yyval.nPtr) = opr(PLUS_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 2091 "parser.cpp"
     break;
 
   case 74:
-#line 161 "calc3.y"
+#line 161 "parser.y"
                                     { (yyval.nPtr) = opr(AND_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 2097 "parser.cpp"
     break;
 
   case 75:
-#line 162 "calc3.y"
+#line 162 "parser.y"
                                     { (yyval.nPtr) = opr(OR_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 2103 "parser.cpp"
     break;
 
   case 76:
-#line 163 "calc3.y"
+#line 163 "parser.y"
                                     { (yyval.nPtr) = opr(PLUS_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 2109 "parser.cpp"
     break;
 
   case 77:
-#line 164 "calc3.y"
+#line 164 "parser.y"
                                     { (yyval.nPtr) = opr('!', 1, (yyvsp[0].nPtr)); }
 #line 2115 "parser.cpp"
     break;
 
   case 78:
-#line 165 "calc3.y"
+#line 165 "parser.y"
                                     { (yyval.nPtr) = opr('~', 1, (yyvsp[0].nPtr)); }
 #line 2121 "parser.cpp"
     break;
 
   case 79:
-#line 166 "calc3.y"
+#line 166 "parser.y"
                                     { (yyval.nPtr) = opr(UPLUS, 1, (yyvsp[0].nPtr)); }
 #line 2127 "parser.cpp"
     break;
 
   case 80:
-#line 167 "calc3.y"
+#line 167 "parser.y"
                                     { (yyval.nPtr) = opr(UMINUS, 1, (yyvsp[0].nPtr)); }
 #line 2133 "parser.cpp"
     break;
 
   case 81:
-#line 168 "calc3.y"
+#line 168 "parser.y"
                                     { (yyval.nPtr) = opr(OR, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2139 "parser.cpp"
     break;
 
   case 82:
-#line 169 "calc3.y"
+#line 169 "parser.y"
                                     { (yyval.nPtr) = opr(AND, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2145 "parser.cpp"
     break;
 
   case 83:
-#line 170 "calc3.y"
+#line 170 "parser.y"
                                     { (yyval.nPtr) = opr('|', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2151 "parser.cpp"
     break;
 
   case 84:
-#line 171 "calc3.y"
+#line 171 "parser.y"
                                     { (yyval.nPtr) = opr('^', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2157 "parser.cpp"
     break;
 
   case 85:
-#line 172 "calc3.y"
+#line 172 "parser.y"
                                     { (yyval.nPtr) = opr('&', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2163 "parser.cpp"
     break;
 
   case 86:
-#line 173 "calc3.y"
+#line 173 "parser.y"
                                     { (yyval.nPtr) = opr('+', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2169 "parser.cpp"
     break;
 
   case 87:
-#line 174 "calc3.y"
+#line 174 "parser.y"
                                     { (yyval.nPtr) = opr('-', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2175 "parser.cpp"
     break;
 
   case 88:
-#line 175 "calc3.y"
+#line 175 "parser.y"
                                     { (yyval.nPtr) = opr('*', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2181 "parser.cpp"
     break;
 
   case 89:
-#line 176 "calc3.y"
+#line 176 "parser.y"
                                     { (yyval.nPtr) = opr('/', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2187 "parser.cpp"
     break;
 
   case 90:
-#line 177 "calc3.y"
+#line 177 "parser.y"
                                     { (yyval.nPtr) = opr('%', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2193 "parser.cpp"
     break;
 
   case 91:
-#line 178 "calc3.y"
+#line 178 "parser.y"
                                     { (yyval.nPtr) = opr('<', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2199 "parser.cpp"
     break;
 
   case 92:
-#line 179 "calc3.y"
+#line 179 "parser.y"
                                     { (yyval.nPtr) = opr('>', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2205 "parser.cpp"
     break;
 
   case 93:
-#line 180 "calc3.y"
+#line 180 "parser.y"
                                     { (yyval.nPtr) = opr(GE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2211 "parser.cpp"
     break;
 
   case 94:
-#line 181 "calc3.y"
+#line 181 "parser.y"
                                     { (yyval.nPtr) = opr(LE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2217 "parser.cpp"
     break;
 
   case 95:
-#line 182 "calc3.y"
+#line 182 "parser.y"
                                     { (yyval.nPtr) = opr(NE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2223 "parser.cpp"
     break;
 
   case 96:
-#line 183 "calc3.y"
+#line 183 "parser.y"
                                     { (yyval.nPtr) = opr(EQ, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2229 "parser.cpp"
     break;
 
   case 97:
-#line 184 "calc3.y"
+#line 184 "parser.y"
                                     { (yyval.nPtr) = opr(SHIFT_LEFT, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2235 "parser.cpp"
     break;
 
   case 98:
-#line 185 "calc3.y"
+#line 185 "parser.y"
                                     { (yyval.nPtr) = opr(SHIFT_RIGHT, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2241 "parser.cpp"
     break;
 
   case 99:
-#line 186 "calc3.y"
+#line 186 "parser.y"
                                     { (yyval.nPtr) = (yyvsp[-1].nPtr); }
 #line 2247 "parser.cpp"
     break;
@@ -2479,7 +2479,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 194 "calc3.y"
+#line 194 "parser.y"
 
 
 nodeType *con(int value) {
