@@ -47,6 +47,7 @@ int ex(nodeType *p) {
         case OR_EQ:             return sym[p->opr.op[0]->id.i] |= ex(p->opr.op[1]);
         case XOR_EQ:            return sym[p->opr.op[0]->id.i] ^= ex(p->opr.op[1]);
         case UMINUS:            return -ex(p->opr.op[0]);
+        case UPLUS:             return +ex(p->opr.op[0]);
         case '!':               return !ex(p->opr.op[0]);
         case '~':               return ~ex(p->opr.op[0]);
         case OR:                return ex(p->opr.op[0]) || ex(p->opr.op[1]);

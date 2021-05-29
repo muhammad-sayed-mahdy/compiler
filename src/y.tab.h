@@ -34,7 +34,7 @@
 # define YY_YY_Y_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -53,6 +53,7 @@ extern int yydebug;
     FOR = 263,
     REPEAT = 264,
     UNTIL = 265,
+<<<<<<< HEAD
     SWITCH = 266,
     CASE = 267,
     DEFAULT = 268,
@@ -77,6 +78,30 @@ extern int yydebug;
     SHIFT_LEFT = 287,
     SHIFT_RIGHT = 288,
     UMINUS = 289
+=======
+    IFX = 266,
+    ELSE = 267,
+    PLUS_EQ = 268,
+    MINUS_EQ = 269,
+    MUL_EQ = 270,
+    DIV_EQ = 271,
+    MOD_EQ = 272,
+    SH_LE_EQ = 273,
+    SH_RI_EQ = 274,
+    AND_EQ = 275,
+    XOR_EQ = 276,
+    OR_EQ = 277,
+    OR = 278,
+    AND = 279,
+    GE = 280,
+    LE = 281,
+    EQ = 282,
+    NE = 283,
+    SHIFT_LEFT = 284,
+    SHIFT_RIGHT = 285,
+    UMINUS = 286,
+    UPLUS = 287
+>>>>>>> c8b6279a429549031ffecac63583fc48166d26e3
   };
 #endif
 /* Tokens.  */
@@ -88,6 +113,7 @@ extern int yydebug;
 #define FOR 263
 #define REPEAT 264
 #define UNTIL 265
+<<<<<<< HEAD
 #define SWITCH 266
 #define CASE 267
 #define DEFAULT 268
@@ -112,6 +138,30 @@ extern int yydebug;
 #define SHIFT_LEFT 287
 #define SHIFT_RIGHT 288
 #define UMINUS 289
+=======
+#define IFX 266
+#define ELSE 267
+#define PLUS_EQ 268
+#define MINUS_EQ 269
+#define MUL_EQ 270
+#define DIV_EQ 271
+#define MOD_EQ 272
+#define SH_LE_EQ 273
+#define SH_RI_EQ 274
+#define AND_EQ 275
+#define XOR_EQ 276
+#define OR_EQ 277
+#define OR 278
+#define AND 279
+#define GE 280
+#define LE 281
+#define EQ 282
+#define NE 283
+#define SHIFT_LEFT 284
+#define SHIFT_RIGHT 285
+#define UMINUS 286
+#define UPLUS 287
+>>>>>>> c8b6279a429549031ffecac63583fc48166d26e3
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -120,10 +170,18 @@ union YYSTYPE
 {
 #line 24 "calc3.y" /* yacc.c:1909  */
 
+<<<<<<< HEAD
     int iValue;                         /* integer value */
     char sIndex;                        /* symbol table index */
     nodeType *nPtr;                     /* node pointer */
     switchstatement *swtch;  
+=======
+    int iValue;                 /* integer value */
+    char sIndex;                /* symbol table index */
+    nodeType *nPtr;             /* node pointer */
+
+#line 127 "y.tab.h"
+>>>>>>> c8b6279a429549031ffecac63583fc48166d26e3
 
 #line 129 "y.tab.h" /* yacc.c:1909  */
 };

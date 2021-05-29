@@ -44,7 +44,7 @@ int sym[26];                    /* symbol table */
 %left SHIFT_LEFT SHIFT_RIGHT
 %left '+' '-'
 %left '*' '/' '%'
-%nonassoc UMINUS '~' '!'
+%nonassoc UMINUS UPLUS '~' '!'
 
 %type <nPtr> stmt expr stmt_list const_expr
 %type <swtch> switch_stmt
@@ -123,6 +123,7 @@ expr:
         | VARIABLE XOR_EQ expr      { $$ = opr(PLUS_EQ, 2, id($1), $3); }
         | '!' expr                  { $$ = opr('!', 1, $2); }
         | '~' expr                  { $$ = opr('~', 1, $2); }
+        | '+' expr %prec UPLUS      { $$ = opr(UPLUS, 1, $2); }
         | '-' expr %prec UMINUS     { $$ = opr(UMINUS, 1, $2); }
         | expr OR expr              { $$ = opr(OR, 2, $1, $3); }
         | expr AND expr             { $$ = opr(AND, 2, $1, $3); }
