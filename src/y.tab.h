@@ -38,7 +38,7 @@
 # define YY_YY_Y_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -77,7 +77,8 @@ extern int yydebug;
     NE = 283,
     SHIFT_LEFT = 284,
     SHIFT_RIGHT = 285,
-    UMINUS = 286
+    UMINUS = 286,
+    UPLUS = 287
   };
 #endif
 /* Tokens.  */
@@ -110,6 +111,7 @@ extern int yydebug;
 #define SHIFT_LEFT 284
 #define SHIFT_RIGHT 285
 #define UMINUS 286
+#define UPLUS 287
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -121,7 +123,7 @@ union YYSTYPE
     char sIndex;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
 
-#line 125 "y.tab.h"
+#line 127 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
