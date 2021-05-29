@@ -5,9 +5,14 @@
 #include "calc3.h"
 
 /* prototypes */
+
+int noOfCases;
+
 nodeType *opr(int oper, int nops, ...);
 nodeType *id(int i);
 nodeType *con(int value);
+struct switchStatement * conc(int oper, nodeType * exp, nodeType * stmnt, struct switchStatement * nxt);
+nodeType *switchOpr(nodeType* exp, struct switchStatement * ss);
 void freeNode(nodeType *p);
 int ex(nodeType *p);
 int yylex(void);
@@ -17,14 +22,15 @@ int sym[26];                    /* symbol table */
 %}
 
 %union {
-    int iValue;                 /* integer value */
-    char sIndex;                /* symbol table index */
-    nodeType *nPtr;             /* node pointer */
+    int iValue;                         /* integer value */
+    char sIndex;                        /* symbol table index */
+    nodeType *nPtr;                     /* node pointer */
+    switchstatement *swtch;  
 };
 
 %token <iValue> INTEGER
 %token <sIndex> VARIABLE
-%token WHILE IF PRINT FOR REPEAT UNTIL /*SWITCH CASE DEFALUT CONST*/
+%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT /*CONST*/
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -40,7 +46,8 @@ int sym[26];                    /* symbol table */
 %left '*' '/' '%'
 %nonassoc UMINUS '~' '!'
 
-%type <nPtr> stmt expr stmt_list
+%type <nPtr> stmt expr stmt_list const_expr
+%type <swtch> switch_stmt
 
 %%
 
@@ -60,24 +67,24 @@ stmt:
         | WHILE '(' expr ')' stmt                                { $$ = opr(WHILE, 2, $3, $5); }
         | REPEAT stmt  UNTIL '(' expr ')' ';'                    { $$ = opr(REPEAT, 2, $2, $5); }
         | FOR '(' expr ';' expr ';' expr ')' stmt                { $$ = opr(FOR, 4, $3, $5, $7, $9); }
-        // | SWITCH '(' expr ')' '{' switch_stmt '}'                { $$ = opr(SWITCH, 3, $) }
+        | SWITCH '(' expr ')' '{' switch_stmt '}'                { $$ = switchOpr( $3, $6); }
         | IF '(' expr ')' stmt %prec IFX                         { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt                         { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'                                      { $$ = $2; }
         ;
 
-/*switch_stmt:
-            CASE const_expr ':' stmt
-        | CASE const_expr ':' stmt switch_stmt
-        | DEFALUT ':' stmt
-        ;*/
+switch_stmt:
+            CASE const_expr ':' stmt                                   { $$ = conc(CASE, $2, $4, NULL);}
+        | CASE const_expr ':' stmt switch_stmt                         { $$ = conc(CASE, $2, $4, $5);}
+        | DEFAULT ':' stmt                                       { $$ = conc(DEFAULT, NULL, $3, NULL);}
+        ;
 
 stmt_list:
           stmt                  { $$ = $1; }
         | stmt_list stmt        { $$ = opr(';', 2, $1, $2); }
         ;
 
-/*const_expr:
+const_expr:
           INTEGER                           { $$ = con($1); }
         | '!' const_expr                    { $$ = opr('!', 1, $2); }
         | '~' const_expr                    { $$ = opr('~', 1, $2); }
@@ -98,7 +105,7 @@ stmt_list:
         | const_expr NE const_expr          { $$ = opr(NE, 2, $1, $3); }
         | const_expr EQ const_expr          { $$ = opr(EQ, 2, $1, $3); }
         | '(' const_expr ')'                { $$ = $2; }
-        ;*/
+        ;
 
 expr:
      INTEGER                        { $$ = con($1); }
@@ -188,6 +195,52 @@ nodeType *opr(int oper, int nops, ...) {
     return p;
 }
 
+nodeType *switchOpr(nodeType* exp, struct switchStatement * ss) {
+    nodeType *p;
+    int i = 2, casesNo = 0, nops = 2;
+    struct switchStatement *tmp = ss;
+    // No of operands =         1            +        1        +        3*No of Cases       -       1
+    //                  (switch expression)     (No of Cases)           (each Case)             (if default exists)
+
+    while(tmp){
+        if(tmp->oper == DEFAULT) nops--;
+        tmp = tmp->nxt;
+        casesNo++;
+        nops += 3;
+    }
+
+    /* allocate node, extending op array */
+    if ((p = malloc(sizeof(nodeType) + (nops-1) * sizeof(nodeType *))) == NULL)
+        yyerror("out of memory");
+
+    /* copy information */
+    p->type = typeOpr;
+    p->opr.oper = SWITCH;
+    p->opr.nops = nops;
+    p->opr.op[0] = exp;
+    p->opr.op[1] = malloc(sizeof(nodeType));
+    p->opr.op[1]->con.value = casesNo;
+    while(ss){
+        tmp = ss;
+        if(ss->oper == DEFAULT){
+            p->opr.op[i] = malloc(sizeof(nodeType));
+            p->opr.op[i++]->con.value = DEFAULT;
+            p->opr.op[i++] = ss->stmnt;
+        }
+        else{
+            p->opr.op[i] = malloc(sizeof(nodeType));
+            p->opr.op[i++]->con.value = CASE;
+            p->opr.op[i++] = ss->exp;
+            p->opr.op[i++] = ss->stmnt;
+        }
+        ss = ss->nxt;
+        free(tmp);
+    }
+    return p;
+}
+
+
+
 void freeNode(nodeType *p) {
     int i;
 
@@ -207,3 +260,24 @@ int main(void) {
     yyparse();
     return 0;
 }
+
+struct switchStatement * conc(int oper, nodeType * exp, nodeType * stmnt, struct switchStatement * nxt){
+    struct switchStatement * ret = malloc(sizeof(switchstatement));
+    ret->oper = oper;
+    ret->stmnt = stmnt;
+    ret->nxt = nxt;
+    if(oper == CASE){
+        ret->exp = exp;
+    }
+    return ret;
+}
+/*
+x = 1;
+switch(x){
+    case 0: print 0;
+    case 1: print 1;
+    case 2: print 2;
+    default: print 3;
+}
+
+*/

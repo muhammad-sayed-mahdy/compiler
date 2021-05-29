@@ -30,8 +30,8 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_YY_Y_TAB_H_INCLUDED
-# define YY_YY_Y_TAB_H_INCLUDED
+#ifndef YY_YY_CALC3_TAB_H_INCLUDED
+# define YY_YY_CALC3_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -79,53 +79,19 @@ extern int yydebug;
     UMINUS = 289
   };
 #endif
-/* Tokens.  */
-#define INTEGER 258
-#define VARIABLE 259
-#define WHILE 260
-#define IF 261
-#define PRINT 262
-#define FOR 263
-#define REPEAT 264
-#define UNTIL 265
-#define SWITCH 266
-#define CASE 267
-#define DEFAULT 268
-#define IFX 269
-#define ELSE 270
-#define PLUS_EQ 271
-#define MINUS_EQ 272
-#define MUL_EQ 273
-#define DIV_EQ 274
-#define MOD_EQ 275
-#define SH_LE_EQ 276
-#define SH_RI_EQ 277
-#define AND_EQ 278
-#define XOR_EQ 279
-#define OR_EQ 280
-#define OR 281
-#define AND 282
-#define GE 283
-#define LE 284
-#define EQ 285
-#define NE 286
-#define SHIFT_LEFT 287
-#define SHIFT_RIGHT 288
-#define UMINUS 289
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 
 union YYSTYPE
 {
-#line 24 "calc3.y" /* yacc.c:1909  */
+#line 30 "calc3.y" /* yacc.c:1909  */
 
-    int iValue;                         /* integer value */
-    char sIndex;                        /* symbol table index */
-    nodeType *nPtr;                     /* node pointer */
-    switchstatement *swtch;  
+    int iValue;                 /* integer value */
+    char sIndex;                /* symbol table index */
+    nodeType *nPtr;             /* node pointer */
 
-#line 129 "y.tab.h" /* yacc.c:1909  */
+#line 95 "calc3.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -138,4 +104,4 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_Y_TAB_H_INCLUDED  */
+#endif /* !YY_YY_CALC3_TAB_H_INCLUDED  */

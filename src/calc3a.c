@@ -18,6 +18,21 @@ int ex(nodeType *p) {
                                 else if (p->opr.nops > 2)
                                     ex(p->opr.op[2]);
                                 return 0;
+        case SWITCH:  
+        {
+            int operts = 2;        
+            for(int i = 0; i < p->opr.op[1]->con.value; ++i, operts += 3){
+                if(p->opr.op[operts]->con.value == CASE){
+                    if(ex(p->opr.op[operts+1]) == ex(p->opr.op[0])){
+                        ex(p->opr.op[operts+2]);
+                    }
+                }
+                else{
+                    ex(p->opr.op[operts+1]);
+                }
+            }
+            return 0;
+        }
         case PRINT:             printf("%d\n", ex(p->opr.op[0])); return 0;
         case ';':               ex(p->opr.op[0]); return ex(p->opr.op[1]);
         case '=':               return sym[p->opr.op[0]->id.i] = ex(p->opr.op[1]);

@@ -27,4 +27,12 @@ typedef struct nodeTypeTag {
     };
 } nodeType;
 
+
+typedef struct switchStatement{
+    int oper; // 0: Case     1: Default
+    nodeType * exp;
+    nodeType * stmnt;
+    struct switchStatement *nxt;
+} switchstatement;
+
 extern int sym[26];

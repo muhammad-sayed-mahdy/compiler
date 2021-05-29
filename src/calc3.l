@@ -31,10 +31,9 @@ void yyerror(char *);
 "until"         return UNTIL;
 "if"            return IF;
 "else"          return ELSE;
-/* "switch"        return SWITCH;
+"switch"        return SWITCH;
 "case"          return CASE;
 "default"       return DEFAULT;
-"const"         return CONST;*/
 "print"         return PRINT;
 
 [-()<>=+*/%;{}.|&~^!:] {
