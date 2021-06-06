@@ -37,7 +37,7 @@ int sym[26];                    /* symbol table */
 %token <cValue> CHARACTER
 %token <bValue> BOOLEAN
 %token <sIndex> VARIABLE
-%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT INT DOB CHAR BOOL CONST RETURN
+%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT VOID INT DOB CHAR BOOL CONST RETURN CONTINUE BREAK
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -76,15 +76,19 @@ decl:
 
 stmt:
           ';'                                                    { $$ = opr(';', 2, NULL, NULL); }
+        | CONTINUE ';'                                           { $$ = NULL; }
+        | BREAK ';'                                              { $$ = NULL; }  
         | expr ';'                                               { $$ = $1; }
         | PRINT expr ';'                                         { $$ = opr(PRINT, 1, $2); }
         | WHILE '(' expr ')' stmt                                { $$ = opr(WHILE, 2, $3, $5); }
         | decl ';'                                               { $$ = $1; }
         | typ VARIABLE '(' param_list ')' stmt                   { $$ = NULL; }
+        | VOID VARIABLE '(' param_list ')' stmt                   { $$ = NULL; }
         | RETURN expr ';'                                        { $$ = opr(RETURN, 1, $2); }
         | RETURN ';'                                             { $$ = opr(RETURN, 0); }
         | REPEAT stmt  UNTIL '(' expr ')' ';'                    { $$ = opr(REPEAT, 2, $2, $5); }
         | FOR '(' expr ';' expr ';' expr ')' stmt                { $$ = opr(FOR, 4, $3, $5, $7, $9); }
+        | FOR '(' decl ';' expr ';' expr ')' stmt                { $$ = opr(FOR, 4, $3, $5, $7, $9); }
         | SWITCH '(' expr ')' '{' switch_stmt '}'                { $$ = switchOpr( $3, $6); }
         | IF '(' expr ')' stmt %prec IFX                         { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt                         { $$ = opr(IF, 3, $3, $5, $7); }

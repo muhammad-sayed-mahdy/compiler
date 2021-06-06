@@ -34,12 +34,15 @@ void yyerror(const std::string& s);
 "else"          return ELSE;
 "switch"        return SWITCH;
 "case"          return CASE;
+"continue"      return CONTINUE;
+"break"         return BREAK;
 "default"       return DEFAULT;
 "print"         return PRINT;
 "int"           return INT;
 "double"        return DOB;
 "char"          return CHAR;
 "bool"          return BOOL;
+"void"          return VOID;
 "const"         return CONST;
 "return"        return RETURN;
 
