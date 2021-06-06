@@ -3,6 +3,7 @@
 #include "compiler.h"
 #include "parser.hpp"
 #include <string>
+#include <string.h>
 void yyerror(const std::string& s);
 %}
 
@@ -61,7 +62,7 @@ void yyerror(const std::string& s);
              }
 
 [a-zA-Z_][a-zA-Z_0-9]*       { 
-                yylval.sIndex = *yytext - 'a';
+                yylval.sIndex = strdup(yytext);
                 return VARIABLE;
             }
 
@@ -78,8 +79,9 @@ void yyerror(const std::string& s);
                 return INTEGER;
             }
 
-(0|[1-9][0-9]*).(0|[1-9][0-9]*)  {
-                yylval.dValue = atof(yytext);
+(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)  {
+                char * tmp = strdup(yytext);
+                yylval.dValue = atof(tmp);
                 return FLOAT;
             }
 

@@ -10,10 +10,23 @@ int ex(nodeType *p) {
     if (!p) return 0;
     switch(p->type) {
     case typeCon:       
-        printf("\tpush\t%d\n", p->con.value); 
+        switch(p->con.type){
+            case INT_TYPE: 
+                printf("\tpush_int\t%d\n", p->con.value.valInt);
+                break;
+            case CHAR_TYPE: 
+                printf("\tpush_char\t%c\n", p->con.value.valChar);
+                break;
+            case BOOL_TYPE: 
+                printf("\tpush_bool\t%s\n", p->con.value.valBool? "true" : "false");
+                break;
+            case FLOAT_TYPE: 
+                printf("\tpush_float\t%f\n", p->con.value.valFloat);
+                break;
+        }
         break;
     case typeId:        
-        printf("\tpush\t%c\n", p->id.i + 'a'); 
+        printf("\tpush\t%s\n", p->id.i); 
         // TODO: return the type of the identifier here
         break;
     case typeOpr:
@@ -49,7 +62,7 @@ int ex(nodeType *p) {
             break;
         case '=':       
             ex(p->opr.op[1]);
-            printf("\tpop\t%c\n", p->opr.op[0]->id.i + 'a');
+            printf("\tpop\t%s\n", p->opr.op[0]->id.i);
             break;
         case UMINUS:    
             ex(p->opr.op[0]);

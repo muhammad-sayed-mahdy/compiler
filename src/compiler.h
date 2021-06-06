@@ -2,14 +2,26 @@
 
 typedef enum { typeCon, typeId, typeOpr } nodeEnum;
 
+struct valType
+{
+    union{
+        int valInt;
+        float valFloat;
+        bool valBool;
+        char valChar;
+    };
+};   
+
 /* constants */
 typedef struct {
-    int value;                  /* value of constant */
+    valType value;                  /* value of constant */
+    int type;
 } conNodeType;
 
 /* identifiers */
 typedef struct {
-    int i;                      /* subscript to sym array */
+    char * i;                      /* subscript to sym array */
+    int type;
 } idNodeType;
 
 /* operators */
@@ -36,7 +48,5 @@ typedef struct switchStatement{
     nodeType * stmnt;
     struct switchStatement *nxt;
 } switchstatement;
-
-extern int sym[26];
 
 void logError(const std::string& msg);

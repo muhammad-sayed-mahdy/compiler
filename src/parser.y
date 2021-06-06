@@ -4,14 +4,15 @@
 #include <stdarg.h>
 #include "compiler.h"
 #include <string>
+#include <string.h>
 
 /* prototypes */
 
 int noOfCases;
 
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(int i);
-nodeType *con(int value);
+nodeType *id(char * i);
+nodeType *con(int typ, ...);
 struct switchStatement * conc(int oper, nodeType * exp, nodeType * stmnt, struct switchStatement * nxt);
 nodeType *switchOpr(nodeType* exp, struct switchStatement * ss);
 void freeNode(nodeType *p);
@@ -19,15 +20,15 @@ int ex(nodeType *p);
 int yylex(void);
 
 void yyerror(const std::string& s);
-int sym[26];                    /* symbol table */
+
 %}
 
 %union {
     int iValue;                         /* integer value */
-    double dValue;                      /* double value */
+    float dValue;                      /* double value */
     char cValue;                        /* char value */
     bool bValue;                        /* boolean value */
-    char sIndex;                        /* symbol table index */
+    char* sIndex;                        /* symbol table index */
     nodeType *nPtr;                     /* node pointer */
     switchstatement *swtch;  
 };
@@ -119,10 +120,10 @@ stmt_list:
         ;
 
 const_expr:
-          INTEGER                           { $$ = con($1); }
-        | FLOAT                             { $$ = con($1); }
-        | CHAR                              { $$ = con($1); }
-        | BOOL                              { $$ = con($1); }
+          INTEGER                        { $$ = con(INT_TYPE, $1); }
+        | FLOAT                     { $$ = con(FLOAT_TYPE, $1); }
+        | CHAR                      { $$ = con(CHAR_TYPE, $1); }
+        | BOOL                      { $$ = con(BOOL_TYPE, $1); }
         | '!' const_expr                    { $$ = opr('!', 1, $2); }
         | '~' const_expr                    { $$ = opr('~', 1, $2); }
         | '-' const_expr %prec UMINUS       { $$ = opr(UMINUS, 1, $2); }
@@ -148,10 +149,10 @@ const_expr:
         ;
 
 expr:
-     INTEGER                        { $$ = con($1); }
-        | FLOAT                     { $$ = con($1); }
-        | CHAR                      { $$ = con($1); }
-        | BOOL                      { $$ = con($1); }
+     INTEGER                        { $$ = con(INT_TYPE, $1); }
+        | FLOAT                     { $$ = con(FLOAT_TYPE, $1); }
+        | CHAR                      { $$ = con(CHAR_TYPE, $1); }
+        | BOOL                      { $$ = con(BOOL_TYPE, $1); }
         | VARIABLE                  { $$ = id($1); }
         | VARIABLE '(' arg_list ')' { $$ = NULL; }
         | VARIABLE '=' expr         { $$ = opr('=', 2, id($1), $3); }
@@ -197,24 +198,31 @@ typ:
     | FLOAT_TYPE                           
 %%
 
-nodeType *con(int value) {
+nodeType *con(int typ, ...) {
+    va_list ap;
     nodeType *p = new nodeType();
 
 
     /* copy information */
     p->type = typeCon;
-    p->con.value = value;
+    p->con.type = typ;
+    va_start(ap,typ);
+    if(typ != FLOAT_TYPE)
+        p->con.value = va_arg(ap, valType);
+    else 
+        p->con.value.valFloat = float(va_arg(ap, double));
+    va_end(ap);
 
     return p;
 }
 
-nodeType *id(int i) {
+nodeType *id(char * i) {
     nodeType *p = new nodeType();
 
 
     /* copy information */
     p->type = typeId;
-    p->id.i = i;
+    p->id.i = strdup(i);
 
     return p;
 }
@@ -258,17 +266,17 @@ nodeType *switchOpr(nodeType* exp, struct switchStatement * ss) {
     p->opr.op = new nodeType* [nops];
     p->opr.op[0] = exp;
     p->opr.op[1] = new nodeType();
-    p->opr.op[1]->con.value = casesNo;
+    p->opr.op[1]->con.value.valInt = casesNo;
     while(ss){
         tmp = ss;
         if(ss->oper == DEFAULT){
             p->opr.op[i] = new nodeType();
-            p->opr.op[i++]->con.value = DEFAULT;
+            p->opr.op[i++]->con.value.valInt = DEFAULT;
             p->opr.op[i++] = ss->stmnt;
         }
         else{
             p->opr.op[i] = new nodeType();
-            p->opr.op[i++]->con.value = CASE;
+            p->opr.op[i++]->con.value.valInt = CASE;
             p->opr.op[i++] = ss->exp;
             p->opr.op[i++] = ss->stmnt;
         }
