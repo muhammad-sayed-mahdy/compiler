@@ -50,9 +50,9 @@ extern int yydebug;
   enum yytokentype
   {
     INTEGER = 258,
-    DOUBLE = 259,
-    CHARACTER = 260,
-    BOOLEAN = 261,
+    FLOAT = 259,
+    CHAR = 260,
+    BOOL = 261,
     VARIABLE = 262,
     WHILE = 263,
     IF = 264,
@@ -64,10 +64,10 @@ extern int yydebug;
     CASE = 270,
     DEFAULT = 271,
     VOID = 272,
-    INT = 273,
-    DOB = 274,
-    CHAR = 275,
-    BOOL = 276,
+    BOOL_TYPE = 273,
+    CHAR_TYPE = 274,
+    INT_TYPE = 275,
+    FLOAT_TYPE = 276,
     CONST = 277,
     RETURN = 278,
     CONTINUE = 279,
@@ -98,9 +98,9 @@ extern int yydebug;
 #endif
 /* Tokens.  */
 #define INTEGER 258
-#define DOUBLE 259
-#define CHARACTER 260
-#define BOOLEAN 261
+#define FLOAT 259
+#define CHAR 260
+#define BOOL 261
 #define VARIABLE 262
 #define WHILE 263
 #define IF 264
@@ -112,10 +112,10 @@ extern int yydebug;
 #define CASE 270
 #define DEFAULT 271
 #define VOID 272
-#define INT 273
-#define DOB 274
-#define CHAR 275
-#define BOOL 276
+#define BOOL_TYPE 273
+#define CHAR_TYPE 274
+#define INT_TYPE 275
+#define FLOAT_TYPE 276
 #define CONST 277
 #define RETURN 278
 #define CONTINUE 279

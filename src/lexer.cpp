@@ -991,22 +991,22 @@ return PRINT;
 case 31:
 YY_RULE_SETUP
 #line 41 "lexer.l"
-return INT;
+return INT_TYPE;
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 42 "lexer.l"
-return DOB;
+return FLOAT_TYPE;
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 43 "lexer.l"
-return CHAR;
+return CHAR_TYPE;
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
 #line 44 "lexer.l"
-return BOOL;
+return BOOL_TYPE;
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
@@ -1028,7 +1028,7 @@ YY_RULE_SETUP
 #line 49 "lexer.l"
 {
                     yylval.bValue = false;
-                    return BOOLEAN;
+                    return BOOL;
                 }
 	YY_BREAK
 case 39:
@@ -1036,7 +1036,7 @@ YY_RULE_SETUP
 #line 54 "lexer.l"
 {
                     yylval.bValue = true;
-                    return BOOLEAN;
+                    return BOOL;
                 }
 	YY_BREAK
 case 40:
@@ -1075,7 +1075,7 @@ YY_RULE_SETUP
 #line 81 "lexer.l"
 {
                 yylval.dValue = atof(yytext);
-                return DOUBLE;
+                return FLOAT;
             }
 	YY_BREAK
 case 45:
@@ -1083,7 +1083,7 @@ YY_RULE_SETUP
 #line 86 "lexer.l"
 {
                     yylval.cValue = yytext[1];
-                    return CHARACTER;
+                    return CHAR;
                 }
 	YY_BREAK
 case 46:

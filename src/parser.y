@@ -33,11 +33,11 @@ int sym[26];                    /* symbol table */
 };
 
 %token <iValue> INTEGER
-%token <dValue> DOUBLE
-%token <cValue> CHARACTER
-%token <bValue> BOOLEAN
+%token <dValue> FLOAT
+%token <cValue> CHAR
+%token <bValue> BOOL
 %token <sIndex> VARIABLE
-%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT VOID INT DOB CHAR BOOL CONST RETURN CONTINUE BREAK
+%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT VOID BOOL_TYPE CHAR_TYPE INT_TYPE FLOAT_TYPE CONST RETURN CONTINUE BREAK
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -120,9 +120,9 @@ stmt_list:
 
 const_expr:
           INTEGER                           { $$ = con($1); }
-        | DOUBLE                            { $$ = con($1); }
-        | CHARACTER                         { $$ = con($1); }
-        | BOOLEAN                           { $$ = con($1); }
+        | FLOAT                             { $$ = con($1); }
+        | CHAR                              { $$ = con($1); }
+        | BOOL                              { $$ = con($1); }
         | '!' const_expr                    { $$ = opr('!', 1, $2); }
         | '~' const_expr                    { $$ = opr('~', 1, $2); }
         | '-' const_expr %prec UMINUS       { $$ = opr(UMINUS, 1, $2); }
@@ -149,9 +149,9 @@ const_expr:
 
 expr:
      INTEGER                        { $$ = con($1); }
-        | DOUBLE                    { $$ = con($1); }
-        | CHARACTER                 { $$ = con($1); }
-        | BOOLEAN                   { $$ = con($1); }
+        | FLOAT                     { $$ = con($1); }
+        | CHAR                      { $$ = con($1); }
+        | BOOL                      { $$ = con($1); }
         | VARIABLE                  { $$ = id($1); }
         | VARIABLE '(' arg_list ')' { $$ = NULL; }
         | VARIABLE '=' expr         { $$ = opr('=', 2, id($1), $3); }
@@ -191,10 +191,10 @@ expr:
         ;
 
 typ: 
-    INT                             
-    | CHAR                          
-    | BOOL                          
-    | DOB                           
+    INT_TYPE                          
+    | CHAR_TYPE                          
+    | BOOL_TYPE                          
+    | FLOAT_TYPE                           
 %%
 
 nodeType *con(int value) {
