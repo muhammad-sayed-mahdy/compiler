@@ -1,3 +1,5 @@
+#include<string>
+
 typedef enum { typeCon, typeId, typeOpr } nodeEnum;
 
 /* constants */
@@ -36,3 +38,5 @@ typedef struct switchStatement{
 } switchstatement;
 
 extern int sym[26];
+
+void logError(const std::string& msg);

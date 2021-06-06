@@ -14,6 +14,7 @@ int ex(nodeType *p) {
         break;
     case typeId:        
         printf("\tpush\t%c\n", p->id.i + 'a'); 
+        // TODO: return the type of the identifier here
         break;
     case typeOpr:
         switch(p->opr.oper) {
@@ -55,21 +56,27 @@ int ex(nodeType *p) {
             printf("\tneg\n");
             break;
         default:
-            ex(p->opr.op[0]);
-            ex(p->opr.op[1]);
+            int type1 = ex(p->opr.op[0]);
+            int type2 = ex(p->opr.op[1]);
             switch(p->opr.oper) {
-            case '+':   printf("\tadd\n"); break;
-            case '-':   printf("\tsub\n"); break; 
-            case '*':   printf("\tmul\n"); break;
-            case '/':   printf("\tdiv\n"); break;
-            case '<':   printf("\tcompLT\n"); break;
-            case '>':   printf("\tcompGT\n"); break;
-            case GE:    printf("\tcompGE\n"); break;
-            case LE:    printf("\tcompLE\n"); break;
-            case NE:    printf("\tcompNE\n"); break;
-            case EQ:    printf("\tcompEQ\n"); break;
+                case '+':   printf("\tadd\n"); break;
+                case '-':   printf("\tsub\n"); break; 
+                case '*':   printf("\tmul\n"); break;
+                case '/':   printf("\tdiv\n"); break;
+                case '<':   printf("\tcompLT\n"); break;
+                case '>':   printf("\tcompGT\n"); break;
+                case GE:    printf("\tcompGE\n"); break;
+                case LE:    printf("\tcompLE\n"); break;
+                case NE:    printf("\tcompNE\n"); break;
+                case EQ:    printf("\tcompEQ\n"); break;
             }
+            
         }
     }
     return 0;
+}
+
+void logError(const std::string& msg) {
+    printf("%s\n", msg.c_str());
+    // print other error parameters here.
 }

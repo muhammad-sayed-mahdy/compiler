@@ -63,34 +63,37 @@ extern int yydebug;
     SWITCH = 269,
     CASE = 270,
     DEFAULT = 271,
-    INT = 272,
-    DOB = 273,
-    CHAR = 274,
-    BOOL = 275,
-    CONST = 276,
-    RETURN = 277,
-    IFX = 278,
-    ELSE = 279,
-    PLUS_EQ = 280,
-    MINUS_EQ = 281,
-    MUL_EQ = 282,
-    DIV_EQ = 283,
-    MOD_EQ = 284,
-    SH_LE_EQ = 285,
-    SH_RI_EQ = 286,
-    AND_EQ = 287,
-    XOR_EQ = 288,
-    OR_EQ = 289,
-    OR = 290,
-    AND = 291,
-    GE = 292,
-    LE = 293,
-    EQ = 294,
-    NE = 295,
-    SHIFT_LEFT = 296,
-    SHIFT_RIGHT = 297,
-    UMINUS = 298,
-    UPLUS = 299
+    VOID = 272,
+    INT = 273,
+    DOB = 274,
+    CHAR = 275,
+    BOOL = 276,
+    CONST = 277,
+    RETURN = 278,
+    CONTINUE = 279,
+    BREAK = 280,
+    IFX = 281,
+    ELSE = 282,
+    PLUS_EQ = 283,
+    MINUS_EQ = 284,
+    MUL_EQ = 285,
+    DIV_EQ = 286,
+    MOD_EQ = 287,
+    SH_LE_EQ = 288,
+    SH_RI_EQ = 289,
+    AND_EQ = 290,
+    XOR_EQ = 291,
+    OR_EQ = 292,
+    OR = 293,
+    AND = 294,
+    GE = 295,
+    LE = 296,
+    EQ = 297,
+    NE = 298,
+    SHIFT_LEFT = 299,
+    SHIFT_RIGHT = 300,
+    UMINUS = 301,
+    UPLUS = 302
   };
 #endif
 /* Tokens.  */
@@ -108,34 +111,37 @@ extern int yydebug;
 #define SWITCH 269
 #define CASE 270
 #define DEFAULT 271
-#define INT 272
-#define DOB 273
-#define CHAR 274
-#define BOOL 275
-#define CONST 276
-#define RETURN 277
-#define IFX 278
-#define ELSE 279
-#define PLUS_EQ 280
-#define MINUS_EQ 281
-#define MUL_EQ 282
-#define DIV_EQ 283
-#define MOD_EQ 284
-#define SH_LE_EQ 285
-#define SH_RI_EQ 286
-#define AND_EQ 287
-#define XOR_EQ 288
-#define OR_EQ 289
-#define OR 290
-#define AND 291
-#define GE 292
-#define LE 293
-#define EQ 294
-#define NE 295
-#define SHIFT_LEFT 296
-#define SHIFT_RIGHT 297
-#define UMINUS 298
-#define UPLUS 299
+#define VOID 272
+#define INT 273
+#define DOB 274
+#define CHAR 275
+#define BOOL 276
+#define CONST 277
+#define RETURN 278
+#define CONTINUE 279
+#define BREAK 280
+#define IFX 281
+#define ELSE 282
+#define PLUS_EQ 283
+#define MINUS_EQ 284
+#define MUL_EQ 285
+#define DIV_EQ 286
+#define MOD_EQ 287
+#define SH_LE_EQ 288
+#define SH_RI_EQ 289
+#define AND_EQ 290
+#define XOR_EQ 291
+#define OR_EQ 292
+#define OR 293
+#define AND 294
+#define GE 295
+#define LE 296
+#define EQ 297
+#define NE 298
+#define SHIFT_LEFT 299
+#define SHIFT_RIGHT 300
+#define UMINUS 301
+#define UPLUS 302
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -151,7 +157,7 @@ union YYSTYPE
     nodeType *nPtr;                     /* node pointer */
     switchstatement *swtch;  
 
-#line 155 "parser.hpp"
+#line 161 "parser.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;
