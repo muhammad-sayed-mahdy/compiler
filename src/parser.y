@@ -4,14 +4,16 @@
 #include <stdarg.h>
 #include "compiler.h"
 #include <string>
+#include <string.h>
+#include <vector>
 
 /* prototypes */
 
 int noOfCases;
 
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(int i);
-nodeType *con(int value);
+nodeType *id(char * i);
+nodeType *con(int typ, ...);
 struct switchStatement * conc(int oper, nodeType * exp, nodeType * stmnt, struct switchStatement * nxt);
 nodeType *switchOpr(nodeType* exp, struct switchStatement * ss);
 void freeNode(nodeType *p);
@@ -19,25 +21,27 @@ int ex(nodeType *p);
 int yylex(void);
 
 void yyerror(const std::string& s);
-int sym[26];                    /* symbol table */
+void flushMsgs(std::vector<std:: string>& msgs);
+std::vector<std::string> msgs;
+
 %}
 
 %union {
     int iValue;                         /* integer value */
-    double dValue;                      /* double value */
+    float dValue;                      /* double value */
     char cValue;                        /* char value */
     bool bValue;                        /* boolean value */
-    char sIndex;                        /* symbol table index */
+    char* sIndex;                        /* symbol table index */
     nodeType *nPtr;                     /* node pointer */
     switchstatement *swtch;  
 };
 
 %token <iValue> INTEGER
-%token <dValue> DOUBLE
-%token <cValue> CHARACTER
-%token <bValue> BOOLEAN
+%token <dValue> FLOAT
+%token <cValue> CHAR
+%token <bValue> BOOL
 %token <sIndex> VARIABLE
-%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT VOID INT DOB CHAR BOOL CONST RETURN CONTINUE BREAK
+%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT VOID BOOL_TYPE CHAR_TYPE INT_TYPE FLOAT_TYPE CONST RETURN CONTINUE BREAK
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -63,7 +67,7 @@ program:
         ;
 
 function:
-          function stmt         { ex($2); freeNode($2); }
+          function stmt         { ex($2); flushMsgs(msgs); freeNode($2); }
         | /* NULL */
         ;
 
@@ -119,10 +123,10 @@ stmt_list:
         ;
 
 const_expr:
-          INTEGER                           { $$ = con($1); }
-        | DOUBLE                            { $$ = con($1); }
-        | CHARACTER                         { $$ = con($1); }
-        | BOOLEAN                           { $$ = con($1); }
+          INTEGER                        { $$ = con(INT_TYPE, $1); }
+        | FLOAT                     { $$ = con(FLOAT_TYPE, $1); }
+        | CHAR                      { $$ = con(CHAR_TYPE, $1); }
+        | BOOL                      { $$ = con(BOOL_TYPE, $1); }
         | '!' const_expr                    { $$ = opr('!', 1, $2); }
         | '~' const_expr                    { $$ = opr('~', 1, $2); }
         | '-' const_expr %prec UMINUS       { $$ = opr(UMINUS, 1, $2); }
@@ -148,10 +152,10 @@ const_expr:
         ;
 
 expr:
-     INTEGER                        { $$ = con($1); }
-        | DOUBLE                    { $$ = con($1); }
-        | CHARACTER                 { $$ = con($1); }
-        | BOOLEAN                   { $$ = con($1); }
+     INTEGER                        { $$ = con(INT_TYPE, $1); }
+        | FLOAT                     { $$ = con(FLOAT_TYPE, $1); }
+        | CHAR                      { $$ = con(CHAR_TYPE, $1); }
+        | BOOL                      { $$ = con(BOOL_TYPE, $1); }
         | VARIABLE                  { $$ = id($1); }
         | VARIABLE '(' arg_list ')' { $$ = NULL; }
         | VARIABLE '=' expr         { $$ = opr('=', 2, id($1), $3); }
@@ -191,30 +195,37 @@ expr:
         ;
 
 typ: 
-    INT                             
-    | CHAR                          
-    | BOOL                          
-    | DOB                           
+    INT_TYPE                          
+    | CHAR_TYPE                          
+    | BOOL_TYPE                          
+    | FLOAT_TYPE                           
 %%
 
-nodeType *con(int value) {
+nodeType *con(int typ, ...) {
+    va_list ap;
     nodeType *p = new nodeType();
 
 
     /* copy information */
     p->type = typeCon;
-    p->con.value = value;
+    p->con.type = typ;
+    va_start(ap,typ);
+    if(typ != FLOAT_TYPE)
+        p->con.value = va_arg(ap, valType);
+    else 
+        p->con.value.valFloat = float(va_arg(ap, double));
+    va_end(ap);
 
     return p;
 }
 
-nodeType *id(int i) {
+nodeType *id(char * i) {
     nodeType *p = new nodeType();
 
 
     /* copy information */
     p->type = typeId;
-    p->id.i = i;
+    p->id.i = strdup(i);
 
     return p;
 }
@@ -258,17 +269,17 @@ nodeType *switchOpr(nodeType* exp, struct switchStatement * ss) {
     p->opr.op = new nodeType* [nops];
     p->opr.op[0] = exp;
     p->opr.op[1] = new nodeType();
-    p->opr.op[1]->con.value = casesNo;
+    p->opr.op[1]->con.value.valInt = casesNo;
     while(ss){
         tmp = ss;
         if(ss->oper == DEFAULT){
             p->opr.op[i] = new nodeType();
-            p->opr.op[i++]->con.value = DEFAULT;
+            p->opr.op[i++]->con.value.valInt = DEFAULT;
             p->opr.op[i++] = ss->stmnt;
         }
         else{
             p->opr.op[i] = new nodeType();
-            p->opr.op[i++]->con.value = CASE;
+            p->opr.op[i++]->con.value.valInt = CASE;
             p->opr.op[i++] = ss->exp;
             p->opr.op[i++] = ss->stmnt;
         }
@@ -288,6 +299,8 @@ void freeNode(nodeType *p) {
         for (i = 0; i < p->opr.nops; i++)
             freeNode(p->opr.op[i]);
         delete[] p->opr.op;
+    } else if (p->type == typeId) {
+        free(p->id.i);
     }
     delete p;
 }
@@ -310,6 +323,13 @@ struct switchStatement * conc(int oper, nodeType * exp, nodeType * stmnt, struct
         ret->exp = exp;
     }
     return ret;
+}
+
+void flushMsgs(std::vector<std:: string>& msgs) {
+    for (auto& msg: msgs) {
+        printf("%s", msg.c_str());
+    }
+    msgs.clear();
 }
 /*
 x = 1;

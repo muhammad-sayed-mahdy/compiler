@@ -3,6 +3,7 @@
 #include "compiler.h"
 #include "parser.hpp"
 #include <string>
+#include <string.h>
 void yyerror(const std::string& s);
 %}
 
@@ -38,22 +39,22 @@ void yyerror(const std::string& s);
 "break"         return BREAK;
 "default"       return DEFAULT;
 "print"         return PRINT;
-"int"           return INT;
-"double"        return DOB;
-"char"          return CHAR;
-"bool"          return BOOL;
+"int"           return INT_TYPE;
+"double"        return FLOAT_TYPE;
+"char"          return CHAR_TYPE;
+"bool"          return BOOL_TYPE;
 "void"          return VOID;
 "const"         return CONST;
 "return"        return RETURN;
 
 "false"         {
                     yylval.bValue = false;
-                    return BOOLEAN;
+                    return BOOL;
                 }
 
 "true"          {
                     yylval.bValue = true;
-                    return BOOLEAN;
+                    return BOOL;
                 }
 
 [-()<>=+*/%;{}.|&~^!:,] {
@@ -61,7 +62,7 @@ void yyerror(const std::string& s);
              }
 
 [a-zA-Z_][a-zA-Z_0-9]*       { 
-                yylval.sIndex = *yytext - 'a';
+                yylval.sIndex = strdup(yytext);
                 return VARIABLE;
             }
 
@@ -78,14 +79,15 @@ void yyerror(const std::string& s);
                 return INTEGER;
             }
 
-(0|[1-9][0-9]*).(0|[1-9][0-9]*)  {
-                yylval.dValue = atof(yytext);
-                return DOUBLE;
+(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)  {
+                char * tmp = strdup(yytext);
+                yylval.dValue = atof(tmp);
+                return FLOAT;
             }
 
 '[^'\n]'   {
                     yylval.cValue = yytext[1];
-                    return CHARACTER;
+                    return CHAR;
                 }
 
 [ \t\n]+        ;       /* ignore whitespace */
