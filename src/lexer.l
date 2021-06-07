@@ -7,6 +7,8 @@
 void yyerror(const std::string& s);
 %}
 
+%option yylineno
+
 %%
 
 ">="            return GE;
@@ -96,4 +98,8 @@ void yyerror(const std::string& s);
 %%
 int yywrap(void) {
     return 1;
+}
+
+void yyerror(const std::string& s) {
+    fprintf(stderr,"Line: %d: error: %s\n",yylineno,s.c_str());
 }

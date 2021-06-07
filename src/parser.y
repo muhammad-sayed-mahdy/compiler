@@ -63,6 +63,9 @@ std::vector<std::string> msgs;
 %type <nPtr> stmt expr stmt_list const_expr decl param_list arg_list typ
 %type <swtch> switch_stmt
 
+%define parse.error verbose
+%locations
+
 %%
 
 program:
@@ -70,7 +73,7 @@ program:
         ;
 
 function:
-          function stmt         { ex($2); printSymbolTable(); freeNode($2); }
+          function stmt         { ex($2); flushMsgs(msgs); printSymbolTable(); freeNode($2); }
         | /* NULL */
         ;
 
@@ -82,7 +85,7 @@ decl:
     ;
 
 stmt:
-          ';'                                                    { $$ = opr(';', 2, NULL, NULL); }
+          ';'                                                    { $$ = NULL; }
         | CONTINUE ';'                                           { $$ = NULL; }
         | BREAK ';'                                              { $$ = NULL; }  
         | expr ';'                                               { $$ = $1; }
@@ -162,16 +165,16 @@ expr:
         | VARIABLE                  { $$ = id($1); }
         | VARIABLE '(' arg_list ')' { $$ = NULL; }
         | VARIABLE '=' expr         { $$ = opr('=', 2, id($1), $3); }
-        | VARIABLE PLUS_EQ expr     { $$ = opr(PLUS_EQ, 2, id($1), $3); }
-        | VARIABLE MINUS_EQ expr    { $$ = opr(MINUS_EQ, 2, id($1), $3); }
-        | VARIABLE MUL_EQ expr      { $$ = opr(MUL_EQ, 2, id($1), $3); }
-        | VARIABLE DIV_EQ expr      { $$ = opr(DIV_EQ, 2, id($1), $3); }
-        | VARIABLE MOD_EQ expr      { $$ = opr(PLUS_EQ, 2, id($1), $3); }
-        | VARIABLE SH_LE_EQ expr    { $$ = opr(SH_LE_EQ, 2, id($1), $3); }
-        | VARIABLE SH_RI_EQ expr    { $$ = opr(PLUS_EQ, 2, id($1), $3); }
-        | VARIABLE AND_EQ expr      { $$ = opr(AND_EQ, 2, id($1), $3); }
-        | VARIABLE OR_EQ expr       { $$ = opr(OR_EQ, 2, id($1), $3); }
-        | VARIABLE XOR_EQ expr      { $$ = opr(PLUS_EQ, 2, id($1), $3); }
+        | VARIABLE PLUS_EQ expr     { $$ = opr('=', 2, id($1), opr('+', 2, id($1), $3)); }
+        | VARIABLE MINUS_EQ expr    { $$ = opr('=', 2, id($1), opr('-', 2, id($1), $3)); }
+        | VARIABLE MUL_EQ expr      { $$ = opr('=', 2, id($1), opr('*', 2, id($1), $3)); }
+        | VARIABLE DIV_EQ expr      { $$ = opr('=', 2, id($1), opr('/', 2, id($1), $3)); }
+        | VARIABLE MOD_EQ expr      { $$ = opr('=', 2, id($1), opr('%', 2, id($1), $3)); }
+        | VARIABLE SH_LE_EQ expr    { $$ = opr('=', 2, id($1), opr(SHIFT_LEFT, 2, id($1), $3)); }
+        | VARIABLE SH_RI_EQ expr    { $$ = opr('=', 2, id($1), opr(SHIFT_RIGHT, 2, id($1), $3)); }
+        | VARIABLE AND_EQ expr      { $$ = opr('=', 2, id($1), opr('&', 2, id($1), $3)); }
+        | VARIABLE OR_EQ expr       { $$ = opr('=', 2, id($1), opr('|', 2, id($1), $3)); }
+        | VARIABLE XOR_EQ expr      { $$ = opr('=', 2, id($1), opr('^', 2, id($1), $3)); }
         | '!' expr                  { $$ = opr('!', 1, $2); }
         | '~' expr                  { $$ = opr('~', 1, $2); }
         | '+' expr %prec UPLUS      { $$ = opr(UPLUS, 1, $2); }
@@ -241,7 +244,7 @@ nodeType *new_id(int oper, int nops, nodeType * typ, char * name, ...){
     /* copy information */
     p->type = typeOpr;
     p->opr.oper = oper;
-    p->opr.nops = nops;
+    p->opr.nops = nops-1;
     p->opr.op = new nodeType* [nops-1];
     p->opr.op[0] = new nodeType();
     p->opr.op[0]->type = typeId;
@@ -348,10 +351,6 @@ void freeNode(nodeType *p) {
         free(p->id.i);
     }
     delete p;
-}
-
-void yyerror(const std::string& s) {
-    fprintf(stdout, "%s\n", s.c_str());
 }
 
 int main(void) {

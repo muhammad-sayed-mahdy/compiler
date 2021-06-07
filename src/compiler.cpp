@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <algorithm>
 #include "compiler.h"
 #include "parser.hpp"
 #include <string.h>
@@ -10,12 +11,12 @@ static int lvl = 0, mx_lvl = 0;
 static int numOfVars = 0;
 static std::map<std::string, symbolEntry> symbol_table[MAX_LEVEL], temp_table[MAX_LEVEL];
 char buff[100];
-int type1, type2;
+int type, type1, type2;
 
 int ex(nodeType *p) {
     int lbl1, lbl2;
 
-    if (!p) return 0;
+    if (!p) return VOID;
     switch(p->type) {
     case typeCon:       
         switch(p->con.type){
@@ -44,9 +45,10 @@ int ex(nodeType *p) {
                     return p->id.type;
                 }
             }
-            logError("use of un declared variable");
-            return INT_TYPE;
+            yyerror("use of undeclared variable");
+            return VOID;
         }
+        
         
     case typeOpr:
         switch(p->opr.oper) {
@@ -132,54 +134,92 @@ int ex(nodeType *p) {
                     }
                 }
             }
+            yyerror("use of undeclared variable");
+            return VOID;
             break;
         case UMINUS:    
-            ex(p->opr.op[0]);
-            sprintf(buff, "\tneg\n");msgs.push_back(buff);
-            break;
+            type = ex(p->opr.op[0]);
+            sprintf(buff, "\tNEG_%s\n", intToType(type).c_str());msgs.push_back(buff);
+            return type;
+        case '!':
+            type = ex(p->opr.op[0]);
+            if (type != BOOL_TYPE)
+                msgs.push_back("\t"+intToType(type)+"_TO_BOOL\n");
+            msgs.push_back("\tNOT_BOOL\n");
+            return BOOL_TYPE;
+        case '~':
+            type = ex(p->opr.op[0]);
+            if (type == FLOAT_TYPE)
+                yyerror("Expression must have integral type");
+            msgs.push_back("\tBIT_NOT_"+intToType(type)+'\n');
+            return type;
         default:
+            if (p->opr.oper == ';'){
+                ex(p->opr.op[0]);
+                ex(p->opr.op[1]);
+                return VOID;
+            }
             type1 = ex(p->opr.op[0]);
             int sz1 = msgs.size();
             type2 = ex(p->opr.op[1]);
-            if (type1 < type2) {
-                std::string convertOp = "\t" + intToType(type1) + "_TO_" + intToType(type2) + "\n";
-                msgs.insert(msgs.begin()+sz1, convertOp);
-            } else if (type2 < type1) {
-                std::string convertOp = "\t" + intToType(type2) + "_TO_" + intToType(type1) + "\n";
-                msgs.push_back(convertOp);
+            if (isIntOper(p->opr.oper) && std::max(type1, type2) == FLOAT_TYPE)
+                yyerror("Expression must have integral type");
+            else if (isLogicalOper(p->opr.oper))
+            {
+                if (type1 != BOOL_TYPE)
+                    msgs.insert(msgs.begin()+sz1, "\t"+intToType(type1)+"_TO_BOOL\n"), type1 = BOOL_TYPE;
+                if (type2 != BOOL_TYPE)
+                    msgs.push_back("\t"+intToType(type2)+"_TO_BOOL\n"), type2 = BOOL_TYPE;
             }
+            else
+            {
+                if (type1 < type2) {
+                    std::string convertOp = "\t" + intToType(type1) + "_TO_" + intToType(type2) + "\n";
+                    msgs.insert(msgs.begin()+sz1, convertOp), type1 = type2;
+                } else if (type2 < type1) {
+                    std::string convertOp = "\t" + intToType(type2) + "_TO_" + intToType(type1) + "\n";
+                    msgs.push_back(convertOp), type2 = type1;
+                }
+            }
+            
 
             switch(p->opr.oper) {
-                case '+':   sprintf(buff, "\tadd"); msgs.push_back(buff); break;
-                case '-':   sprintf(buff, "\tsub"); msgs.push_back(buff); break; 
-                case '*':   sprintf(buff, "\tmul"); msgs.push_back(buff); break;
-                case '/':   sprintf(buff, "\tdiv"); msgs.push_back(buff); break;
-                case '<':   sprintf(buff, "\tcompLT"); msgs.push_back(buff); break;
-                case '>':   sprintf(buff, "\tcompGT"); msgs.push_back(buff); break;
-                case GE:    sprintf(buff, "\tcompGE"); msgs.push_back(buff); break;
-                case LE:    sprintf(buff, "\tcompLE"); msgs.push_back(buff); break;
-                case NE:    sprintf(buff, "\tcompNE"); msgs.push_back(buff); break;
-                case EQ:    sprintf(buff, "\tcompEQ"); msgs.push_back(buff); break;
+                case '+':   sprintf(buff, "\tADD"); msgs.push_back(buff); break;
+                case '-':   sprintf(buff, "\tSUB"); msgs.push_back(buff); break; 
+                case '*':   sprintf(buff, "\tMUL"); msgs.push_back(buff); break;
+                case '/':   sprintf(buff, "\tDIV"); msgs.push_back(buff); break;
+                case '%':   sprintf(buff, "\tMOD"); msgs.push_back(buff); break;
+                case '<':   sprintf(buff, "\tLT"); msgs.push_back(buff); break;
+                case '>':   sprintf(buff, "\tGT"); msgs.push_back(buff); break;
+                case GE:    sprintf(buff, "\tGE"); msgs.push_back(buff); break;
+                case LE:    sprintf(buff, "\tLE"); msgs.push_back(buff); break;
+                case NE:    sprintf(buff, "\tNE"); msgs.push_back(buff); break;
+                case EQ:    sprintf(buff, "\tEQ"); msgs.push_back(buff); break;
+                case '&':    sprintf(buff, "\tBIT_AND"); msgs.push_back(buff); break;
+                case '|':    sprintf(buff, "\tBIT_OR"); msgs.push_back(buff); break;
+                case '^':    sprintf(buff, "\tBIT_XOR"); msgs.push_back(buff); break;
+                case SHIFT_LEFT:    sprintf(buff, "\tSHL"); msgs.push_back(buff); break;
+                case SHIFT_RIGHT:    sprintf(buff, "\tSHR"); msgs.push_back(buff); break;
+                case AND:    sprintf(buff, "\tAND"); msgs.push_back(buff); break;
+                case OR:    sprintf(buff, "\tOR"); msgs.push_back(buff); break;
             }
-            int type = std::max(type1, type2);
-            msgs.back() += "_" + intToType(type) + "\n";
-            return type;
+            
+            msgs.back() += "_" + intToType(type1) + "\n";
+            if (isRelationalOper(p->opr.oper) || isLogicalOper(p->opr.oper))
+                return BOOL_TYPE;
+            return type1;
         }
     }
-    return 0;
+    return VOID;
 }
 
-void logError(const std::string& msg) {
-    sprintf(buff, "%s\n", msg.c_str());msgs.push_back(buff);
-    // print other error parameters here.
-}
 
 std::string intToType(int type)
 {
     switch (type)
     {
     case VOID:
-        logError("can't convert void");
+        yyerror("can't convert void");
         return "";
     case BOOL_TYPE:
         return "BOOL";
@@ -224,8 +264,39 @@ Scope   symbolType      Type      Name
 int x = 0;
 char y = x;
 {
-int z = x+y;
+char z = y+x;
 }
 const float n = x;
 }
 */
+/*
+        block
+        3 semi colon
+        assign
+        =
+        assign
+        =
+        block
+        assign
+        =
+        +
+        assign const
+        =
+        */
+bool isRelationalOper(int oper)
+{
+    int operators[] = {'<', '>', GE, LE, NE, EQ };
+    return std::find(operators, operators+6, oper) != operators+6;
+}
+
+bool isIntOper(int oper)
+{
+    int operators[] = {SHIFT_LEFT, SHIFT_RIGHT, '%', '|', '^', '&', '~'};
+    return std::find(operators, operators+7, oper) != operators+7;
+}
+
+bool isLogicalOper(int oper)
+{
+    int operators[] = {AND, OR, '!'};
+    return std::find(operators, operators+3, oper) != operators+3;
+}
