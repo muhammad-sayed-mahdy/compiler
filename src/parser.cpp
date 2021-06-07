@@ -122,7 +122,7 @@ std::vector<std::string> msgs;
 # undef YYERROR_VERBOSE
 # define YYERROR_VERBOSE 1
 #else
-# define YYERROR_VERBOSE 0
+# define YYERROR_VERBOSE 1
 #endif
 
 /* Use api.header.include to #include this header
@@ -189,52 +189,6 @@ extern int yydebug;
     UPLUS = 302
   };
 #endif
-/* Tokens.  */
-#define INTEGER 258
-#define FLOAT 259
-#define CHAR 260
-#define BOOL 261
-#define VARIABLE 262
-#define WHILE 263
-#define IF 264
-#define PRINT 265
-#define FOR 266
-#define REPEAT 267
-#define UNTIL 268
-#define SWITCH 269
-#define CASE 270
-#define DEFAULT 271
-#define VOID 272
-#define BOOL_TYPE 273
-#define CHAR_TYPE 274
-#define INT_TYPE 275
-#define FLOAT_TYPE 276
-#define CONST 277
-#define RETURN 278
-#define CONTINUE 279
-#define BREAK 280
-#define IFX 281
-#define ELSE 282
-#define PLUS_EQ 283
-#define MINUS_EQ 284
-#define MUL_EQ 285
-#define DIV_EQ 286
-#define MOD_EQ 287
-#define SH_LE_EQ 288
-#define SH_RI_EQ 289
-#define AND_EQ 290
-#define XOR_EQ 291
-#define OR_EQ 292
-#define OR 293
-#define AND 294
-#define GE 295
-#define LE 296
-#define EQ 297
-#define NE 298
-#define SHIFT_LEFT 299
-#define SHIFT_RIGHT 300
-#define UMINUS 301
-#define UPLUS 302
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -250,7 +204,7 @@ union YYSTYPE
     nodeType *nPtr;                     /* node pointer */
     switchstatement *swtch;  
 
-#line 254 "parser.cpp"
+#line 208 "parser.cpp"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -258,9 +212,23 @@ typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
+/* Location type.  */
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+
 
 extern YYSTYPE yylval;
-
+extern YYLTYPE yylloc;
 int yyparse (void);
 
 #endif /* !YY_YY_PARSER_HPP_INCLUDED  */
@@ -508,13 +476,15 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 
 #if (! defined yyoverflow \
      && (! defined __cplusplus \
-         || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
+         || (defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL \
+             && defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
   yy_state_t yyss_alloc;
   YYSTYPE yyvs_alloc;
+  YYLTYPE yyls_alloc;
 };
 
 /* The size of the maximum gap between one aligned stack and the next.  */
@@ -523,8 +493,9 @@ union yyalloc
 /* The size of an array large to enough to hold all stacks, each with
    N elements.  */
 # define YYSTACK_BYTES(N) \
-     ((N) * (YYSIZEOF (yy_state_t) + YYSIZEOF (YYSTYPE)) \
-      + YYSTACK_GAP_MAXIMUM)
+     ((N) * (YYSIZEOF (yy_state_t) + YYSIZEOF (YYSTYPE) \
+             + YYSIZEOF (YYLTYPE)) \
+      + 2 * YYSTACK_GAP_MAXIMUM)
 
 # define YYCOPY_NEEDED 1
 
@@ -630,21 +601,21 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    66,    66,    70,    71,    75,    76,    77,    78,    82,
-      83,    84,    85,    86,    87,    88,    89,    90,    91,    92,
-      93,    94,    95,    96,    97,    98,    99,   103,   104,   105,
-     109,   110,   111,   115,   116,   117,   121,   122,   126,   127,
-     128,   129,   130,   131,   132,   133,   134,   135,   136,   137,
-     138,   139,   140,   141,   142,   143,   144,   145,   146,   147,
-     148,   149,   150,   151,   155,   156,   157,   158,   159,   160,
-     161,   162,   163,   164,   165,   166,   167,   168,   169,   170,
-     171,   172,   173,   174,   175,   176,   177,   178,   179,   180,
-     181,   182,   183,   184,   185,   186,   187,   188,   189,   190,
-     191,   192,   193,   194,   198,   199,   200,   201
+       0,    69,    69,    73,    74,    78,    79,    80,    81,    85,
+      86,    87,    88,    89,    90,    91,    92,    93,    94,    95,
+      96,    97,    98,    99,   100,   101,   102,   106,   107,   108,
+     112,   113,   114,   118,   119,   120,   124,   125,   129,   130,
+     131,   132,   133,   134,   135,   136,   137,   138,   139,   140,
+     141,   142,   143,   144,   145,   146,   147,   148,   149,   150,
+     151,   152,   153,   154,   158,   159,   160,   161,   162,   163,
+     164,   165,   166,   167,   168,   169,   170,   171,   172,   173,
+     174,   175,   176,   177,   178,   179,   180,   181,   182,   183,
+     184,   185,   186,   187,   188,   189,   190,   191,   192,   193,
+     194,   195,   196,   197,   201,   202,   203,   204
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || 0
+#if YYDEBUG || YYERROR_VERBOSE || 1
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
@@ -1041,6 +1012,32 @@ static const yytype_int8 yyr2[] =
 #define YYERRCODE       256
 
 
+/* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
+   If N is 0, then set CURRENT to the empty location which ends
+   the previous symbol: RHS[0] (always defined).  */
+
+#ifndef YYLLOC_DEFAULT
+# define YYLLOC_DEFAULT(Current, Rhs, N)                                \
+    do                                                                  \
+      if (N)                                                            \
+        {                                                               \
+          (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;        \
+          (Current).first_column = YYRHSLOC (Rhs, 1).first_column;      \
+          (Current).last_line    = YYRHSLOC (Rhs, N).last_line;         \
+          (Current).last_column  = YYRHSLOC (Rhs, N).last_column;       \
+        }                                                               \
+      else                                                              \
+        {                                                               \
+          (Current).first_line   = (Current).last_line   =              \
+            YYRHSLOC (Rhs, 0).last_line;                                \
+          (Current).first_column = (Current).last_column =              \
+            YYRHSLOC (Rhs, 0).last_column;                              \
+        }                                                               \
+    while (0)
+#endif
+
+#define YYRHSLOC(Rhs, K) ((Rhs)[K])
+
 
 /* Enable debugging if requested.  */
 #if YYDEBUG
@@ -1056,9 +1053,48 @@ do {                                            \
     YYFPRINTF Args;                             \
 } while (0)
 
-/* This macro is provided for backward compatibility. */
+
+/* YY_LOCATION_PRINT -- Print the location on the stream.
+   This macro was not mandated originally: define only if we know
+   we won't break user code: when these are the locations we know.  */
+
 #ifndef YY_LOCATION_PRINT
-# define YY_LOCATION_PRINT(File, Loc) ((void) 0)
+# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+
+/* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
+
+YY_ATTRIBUTE_UNUSED
+static int
+yy_location_print_ (FILE *yyo, YYLTYPE const * const yylocp)
+{
+  int res = 0;
+  int end_col = 0 != yylocp->last_column ? yylocp->last_column - 1 : 0;
+  if (0 <= yylocp->first_line)
+    {
+      res += YYFPRINTF (yyo, "%d", yylocp->first_line);
+      if (0 <= yylocp->first_column)
+        res += YYFPRINTF (yyo, ".%d", yylocp->first_column);
+    }
+  if (0 <= yylocp->last_line)
+    {
+      if (yylocp->first_line < yylocp->last_line)
+        {
+          res += YYFPRINTF (yyo, "-%d", yylocp->last_line);
+          if (0 <= end_col)
+            res += YYFPRINTF (yyo, ".%d", end_col);
+        }
+      else if (0 <= end_col && yylocp->first_column < end_col)
+        res += YYFPRINTF (yyo, "-%d", end_col);
+    }
+  return res;
+ }
+
+#  define YY_LOCATION_PRINT(File, Loc)          \
+  yy_location_print_ (File, &(Loc))
+
+# else
+#  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
+# endif
 #endif
 
 
@@ -1068,7 +1104,7 @@ do {                                                                      \
     {                                                                     \
       YYFPRINTF (stderr, "%s ", Title);                                   \
       yy_symbol_print (stderr,                                            \
-                  Type, Value); \
+                  Type, Value, Location); \
       YYFPRINTF (stderr, "\n");                                           \
     }                                                                     \
 } while (0)
@@ -1079,10 +1115,11 @@ do {                                                                      \
 `-----------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
 {
   FILE *yyoutput = yyo;
   YYUSE (yyoutput);
+  YYUSE (yylocationp);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
@@ -1100,12 +1137,14 @@ yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep)
 `---------------------------*/
 
 static void
-yy_symbol_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
 {
   YYFPRINTF (yyo, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
-  yy_symbol_value_print (yyo, yytype, yyvaluep);
+  YY_LOCATION_PRINT (yyo, *yylocationp);
+  YYFPRINTF (yyo, ": ");
+  yy_symbol_value_print (yyo, yytype, yyvaluep, yylocationp);
   YYFPRINTF (yyo, ")");
 }
 
@@ -1138,7 +1177,7 @@ do {                                                            \
 `------------------------------------------------*/
 
 static void
-yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, int yyrule)
+yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule)
 {
   int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
@@ -1152,7 +1191,7 @@ yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, int yyrule)
       yy_symbol_print (stderr,
                        yystos[+yyssp[yyi + 1 - yynrhs]],
                        &yyvsp[(yyi + 1) - (yynrhs)]
-                                              );
+                       , &(yylsp[(yyi + 1) - (yynrhs)])                       );
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -1160,7 +1199,7 @@ yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, int yyrule)
 # define YY_REDUCE_PRINT(Rule)          \
 do {                                    \
   if (yydebug)                          \
-    yy_reduce_print (yyssp, yyvsp, Rule); \
+    yy_reduce_print (yyssp, yyvsp, yylsp, Rule); \
 } while (0)
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1428,9 +1467,10 @@ yysyntax_error (YYPTRDIFF_T *yymsg_alloc, char **yymsg,
 `-----------------------------------------------*/
 
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp)
 {
   YYUSE (yyvaluep);
+  YYUSE (yylocationp);
   if (!yymsg)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
@@ -1448,6 +1488,12 @@ int yychar;
 
 /* The semantic value of the lookahead symbol.  */
 YYSTYPE yylval;
+/* Location data for the lookahead symbol.  */
+YYLTYPE yylloc
+# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+  = { 1, 1, 1, 1 }
+# endif
+;
 /* Number of syntax errors so far.  */
 int yynerrs;
 
@@ -1466,6 +1512,7 @@ yyparse (void)
     /* The stacks and their tools:
        'yyss': related to states.
        'yyvs': related to semantic values.
+       'yyls': related to locations.
 
        Refer to the stacks through separate pointers, to allow yyoverflow
        to reallocate them elsewhere.  */
@@ -1480,6 +1527,14 @@ yyparse (void)
     YYSTYPE *yyvs;
     YYSTYPE *yyvsp;
 
+    /* The location stack.  */
+    YYLTYPE yylsa[YYINITDEPTH];
+    YYLTYPE *yyls;
+    YYLTYPE *yylsp;
+
+    /* The locations where the error started and ended.  */
+    YYLTYPE yyerror_range[3];
+
     YYPTRDIFF_T yystacksize;
 
   int yyn;
@@ -1489,6 +1544,7 @@ yyparse (void)
   /* The variables used to return semantic value and location from the
      action routines.  */
   YYSTYPE yyval;
+  YYLTYPE yyloc;
 
 #if YYERROR_VERBOSE
   /* Buffer for error messages, and its allocated size.  */
@@ -1497,7 +1553,7 @@ yyparse (void)
   YYPTRDIFF_T yymsg_alloc = sizeof yymsgbuf;
 #endif
 
-#define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
+#define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N), yylsp -= (N))
 
   /* The number of symbols on the RHS of the reduced rule.
      Keep to zero when no symbol should be popped.  */
@@ -1505,6 +1561,7 @@ yyparse (void)
 
   yyssp = yyss = yyssa;
   yyvsp = yyvs = yyvsa;
+  yylsp = yyls = yylsa;
   yystacksize = YYINITDEPTH;
 
   YYDPRINTF ((stderr, "Starting parse\n"));
@@ -1513,6 +1570,7 @@ yyparse (void)
   yyerrstatus = 0;
   yynerrs = 0;
   yychar = YYEMPTY; /* Cause a token to be read.  */
+  yylsp[0] = yylloc;
   goto yysetstate;
 
 
@@ -1550,6 +1608,7 @@ yysetstate:
            memory.  */
         yy_state_t *yyss1 = yyss;
         YYSTYPE *yyvs1 = yyvs;
+        YYLTYPE *yyls1 = yyls;
 
         /* Each stack pointer address is followed by the size of the
            data in use in that stack, in bytes.  This used to be a
@@ -1558,9 +1617,11 @@ yysetstate:
         yyoverflow (YY_("memory exhausted"),
                     &yyss1, yysize * YYSIZEOF (*yyssp),
                     &yyvs1, yysize * YYSIZEOF (*yyvsp),
+                    &yyls1, yysize * YYSIZEOF (*yylsp),
                     &yystacksize);
         yyss = yyss1;
         yyvs = yyvs1;
+        yyls = yyls1;
       }
 # else /* defined YYSTACK_RELOCATE */
       /* Extend the stack our own way.  */
@@ -1579,6 +1640,7 @@ yysetstate:
           goto yyexhaustedlab;
         YYSTACK_RELOCATE (yyss_alloc, yyss);
         YYSTACK_RELOCATE (yyvs_alloc, yyvs);
+        YYSTACK_RELOCATE (yyls_alloc, yyls);
 # undef YYSTACK_RELOCATE
         if (yyss1 != yyssa)
           YYSTACK_FREE (yyss1);
@@ -1587,6 +1649,7 @@ yysetstate:
 
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
+      yylsp = yyls + yysize - 1;
 
       YY_IGNORE_USELESS_CAST_BEGIN
       YYDPRINTF ((stderr, "Stack size increased to %ld\n",
@@ -1661,6 +1724,7 @@ yybackup:
   YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   *++yyvsp = yylval;
   YY_IGNORE_MAYBE_UNINITIALIZED_END
+  *++yylsp = yylloc;
 
   /* Discard the shifted token.  */
   yychar = YYEMPTY;
@@ -1694,618 +1758,620 @@ yyreduce:
      GCC warning that YYVAL may be used uninitialized.  */
   yyval = yyvsp[1-yylen];
 
-
+  /* Default location. */
+  YYLLOC_DEFAULT (yyloc, (yylsp - yylen), yylen);
+  yyerror_range[1] = yyloc;
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
   case 2:
-#line 66 "parser.y"
+#line 69 "parser.y"
                                 { exit(0); }
-#line 1705 "parser.cpp"
-    break;
-
-  case 3:
-#line 70 "parser.y"
-                                { ex((yyvsp[0].nPtr)); flushMsgs(msgs); freeNode((yyvsp[0].nPtr)); }
-#line 1711 "parser.cpp"
-    break;
-
-  case 5:
-#line 75 "parser.y"
-                                                          { (yyval.nPtr) = id((yyvsp[0].sIndex)); }
-#line 1717 "parser.cpp"
-    break;
-
-  case 6:
-#line 76 "parser.y"
-                                                          { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
-#line 1723 "parser.cpp"
-    break;
-
-  case 7:
-#line 77 "parser.y"
-                                                          { (yyval.nPtr) = id((yyvsp[0].sIndex)); }
-#line 1729 "parser.cpp"
-    break;
-
-  case 8:
-#line 78 "parser.y"
-                                                          { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
-#line 1735 "parser.cpp"
-    break;
-
-  case 9:
-#line 82 "parser.y"
-                                                                 { (yyval.nPtr) = opr(';', 2, NULL, NULL); }
-#line 1741 "parser.cpp"
-    break;
-
-  case 10:
-#line 83 "parser.y"
-                                                                 { (yyval.nPtr) = NULL; }
-#line 1747 "parser.cpp"
-    break;
-
-  case 11:
-#line 84 "parser.y"
-                                                                 { (yyval.nPtr) = NULL; }
-#line 1753 "parser.cpp"
-    break;
-
-  case 12:
-#line 85 "parser.y"
-                                                                 { (yyval.nPtr) = (yyvsp[-1].nPtr); }
-#line 1759 "parser.cpp"
-    break;
-
-  case 13:
-#line 86 "parser.y"
-                                                                 { (yyval.nPtr) = opr(PRINT, 1, (yyvsp[-1].nPtr)); }
-#line 1765 "parser.cpp"
-    break;
-
-  case 14:
-#line 87 "parser.y"
-                                                                 { (yyval.nPtr) = opr(WHILE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1771 "parser.cpp"
     break;
 
-  case 15:
-#line 88 "parser.y"
-                                                                 { (yyval.nPtr) = (yyvsp[-1].nPtr); }
+  case 3:
+#line 73 "parser.y"
+                                { ex((yyvsp[0].nPtr)); flushMsgs(msgs); freeNode((yyvsp[0].nPtr)); }
 #line 1777 "parser.cpp"
     break;
 
-  case 16:
-#line 89 "parser.y"
-                                                                 { (yyval.nPtr) = NULL; }
+  case 5:
+#line 78 "parser.y"
+                                                          { (yyval.nPtr) = id((yyvsp[0].sIndex)); }
 #line 1783 "parser.cpp"
     break;
 
-  case 17:
-#line 90 "parser.y"
-                                                                  { (yyval.nPtr) = NULL; }
+  case 6:
+#line 79 "parser.y"
+                                                          { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 1789 "parser.cpp"
     break;
 
-  case 18:
-#line 91 "parser.y"
-                                                                 { (yyval.nPtr) = opr(RETURN, 1, (yyvsp[-1].nPtr)); }
+  case 7:
+#line 80 "parser.y"
+                                                          { (yyval.nPtr) = id((yyvsp[0].sIndex)); }
 #line 1795 "parser.cpp"
     break;
 
-  case 19:
-#line 92 "parser.y"
-                                                                 { (yyval.nPtr) = opr(RETURN, 0); }
+  case 8:
+#line 81 "parser.y"
+                                                          { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 1801 "parser.cpp"
     break;
 
-  case 20:
-#line 93 "parser.y"
-                                                                 { (yyval.nPtr) = opr(REPEAT, 2, (yyvsp[-5].nPtr), (yyvsp[-2].nPtr)); }
+  case 9:
+#line 85 "parser.y"
+                                                                 { (yyval.nPtr) = opr(';', 2, NULL, NULL); }
 #line 1807 "parser.cpp"
     break;
 
-  case 21:
-#line 94 "parser.y"
-                                                                 { (yyval.nPtr) = opr(FOR, 4, (yyvsp[-6].nPtr), (yyvsp[-4].nPtr), (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 10:
+#line 86 "parser.y"
+                                                                 { (yyval.nPtr) = NULL; }
 #line 1813 "parser.cpp"
     break;
 
-  case 22:
-#line 95 "parser.y"
-                                                                 { (yyval.nPtr) = opr(FOR, 4, (yyvsp[-6].nPtr), (yyvsp[-4].nPtr), (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 11:
+#line 87 "parser.y"
+                                                                 { (yyval.nPtr) = NULL; }
 #line 1819 "parser.cpp"
     break;
 
-  case 23:
-#line 96 "parser.y"
-                                                                 { (yyval.nPtr) = switchOpr( (yyvsp[-4].nPtr), (yyvsp[-1].swtch)); }
+  case 12:
+#line 88 "parser.y"
+                                                                 { (yyval.nPtr) = (yyvsp[-1].nPtr); }
 #line 1825 "parser.cpp"
     break;
 
-  case 24:
-#line 97 "parser.y"
-                                                                 { (yyval.nPtr) = opr(IF, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 13:
+#line 89 "parser.y"
+                                                                 { (yyval.nPtr) = opr(PRINT, 1, (yyvsp[-1].nPtr)); }
 #line 1831 "parser.cpp"
     break;
 
-  case 25:
-#line 98 "parser.y"
-                                                                 { (yyval.nPtr) = opr(IF, 3, (yyvsp[-4].nPtr), (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 14:
+#line 90 "parser.y"
+                                                                 { (yyval.nPtr) = opr(WHILE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1837 "parser.cpp"
     break;
 
-  case 26:
-#line 99 "parser.y"
+  case 15:
+#line 91 "parser.y"
                                                                  { (yyval.nPtr) = (yyvsp[-1].nPtr); }
 #line 1843 "parser.cpp"
     break;
 
-  case 27:
-#line 103 "parser.y"
+  case 16:
+#line 92 "parser.y"
                                                                  { (yyval.nPtr) = NULL; }
 #line 1849 "parser.cpp"
     break;
 
-  case 28:
-#line 104 "parser.y"
-                                                                 { (yyval.nPtr) = NULL; }
+  case 17:
+#line 93 "parser.y"
+                                                                  { (yyval.nPtr) = NULL; }
 #line 1855 "parser.cpp"
     break;
 
-  case 29:
-#line 105 "parser.y"
-                                                                 { (yyval.nPtr) = NULL; }
+  case 18:
+#line 94 "parser.y"
+                                                                 { (yyval.nPtr) = opr(RETURN, 1, (yyvsp[-1].nPtr)); }
 #line 1861 "parser.cpp"
     break;
 
-  case 30:
-#line 109 "parser.y"
-                                                                 { (yyval.nPtr) = NULL; }
+  case 19:
+#line 95 "parser.y"
+                                                                 { (yyval.nPtr) = opr(RETURN, 0); }
 #line 1867 "parser.cpp"
     break;
 
-  case 31:
-#line 110 "parser.y"
-                                                           { (yyval.nPtr) = NULL; }
+  case 20:
+#line 96 "parser.y"
+                                                                 { (yyval.nPtr) = opr(REPEAT, 2, (yyvsp[-5].nPtr), (yyvsp[-2].nPtr)); }
 #line 1873 "parser.cpp"
     break;
 
-  case 32:
-#line 111 "parser.y"
-                                                                 { (yyval.nPtr) = NULL; }
+  case 21:
+#line 97 "parser.y"
+                                                                 { (yyval.nPtr) = opr(FOR, 4, (yyvsp[-6].nPtr), (yyvsp[-4].nPtr), (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1879 "parser.cpp"
     break;
 
-  case 33:
-#line 115 "parser.y"
-                                                                       { (yyval.swtch) = conc(CASE, (yyvsp[-2].nPtr), (yyvsp[0].nPtr), NULL);}
+  case 22:
+#line 98 "parser.y"
+                                                                 { (yyval.nPtr) = opr(FOR, 4, (yyvsp[-6].nPtr), (yyvsp[-4].nPtr), (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1885 "parser.cpp"
     break;
 
-  case 34:
-#line 116 "parser.y"
-                                                                       { (yyval.swtch) = conc(CASE, (yyvsp[-3].nPtr), (yyvsp[-1].nPtr), (yyvsp[0].swtch));}
+  case 23:
+#line 99 "parser.y"
+                                                                 { (yyval.nPtr) = switchOpr( (yyvsp[-4].nPtr), (yyvsp[-1].swtch)); }
 #line 1891 "parser.cpp"
     break;
 
-  case 35:
-#line 117 "parser.y"
-                                                                 { (yyval.swtch) = conc(DEFAULT, NULL, (yyvsp[0].nPtr), NULL);}
+  case 24:
+#line 100 "parser.y"
+                                                                 { (yyval.nPtr) = opr(IF, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1897 "parser.cpp"
     break;
 
-  case 36:
-#line 121 "parser.y"
-                                { (yyval.nPtr) = (yyvsp[0].nPtr); }
+  case 25:
+#line 101 "parser.y"
+                                                                 { (yyval.nPtr) = opr(IF, 3, (yyvsp[-4].nPtr), (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1903 "parser.cpp"
     break;
 
-  case 37:
-#line 122 "parser.y"
-                                { (yyval.nPtr) = opr(';', 2, (yyvsp[-1].nPtr), (yyvsp[0].nPtr)); }
+  case 26:
+#line 102 "parser.y"
+                                                                 { (yyval.nPtr) = (yyvsp[-1].nPtr); }
 #line 1909 "parser.cpp"
     break;
 
-  case 38:
-#line 126 "parser.y"
-                                         { (yyval.nPtr) = con(INT_TYPE, (yyvsp[0].iValue)); }
+  case 27:
+#line 106 "parser.y"
+                                                                 { (yyval.nPtr) = NULL; }
 #line 1915 "parser.cpp"
     break;
 
-  case 39:
-#line 127 "parser.y"
-                                    { (yyval.nPtr) = con(FLOAT_TYPE, (yyvsp[0].dValue)); }
+  case 28:
+#line 107 "parser.y"
+                                                                 { (yyval.nPtr) = NULL; }
 #line 1921 "parser.cpp"
     break;
 
-  case 40:
-#line 128 "parser.y"
-                                    { (yyval.nPtr) = con(CHAR_TYPE, (yyvsp[0].cValue)); }
+  case 29:
+#line 108 "parser.y"
+                                                                 { (yyval.nPtr) = NULL; }
 #line 1927 "parser.cpp"
     break;
 
-  case 41:
-#line 129 "parser.y"
-                                    { (yyval.nPtr) = con(BOOL_TYPE, (yyvsp[0].bValue)); }
+  case 30:
+#line 112 "parser.y"
+                                                                 { (yyval.nPtr) = NULL; }
 #line 1933 "parser.cpp"
     break;
 
-  case 42:
-#line 130 "parser.y"
-                                            { (yyval.nPtr) = opr('!', 1, (yyvsp[0].nPtr)); }
+  case 31:
+#line 113 "parser.y"
+                                                           { (yyval.nPtr) = NULL; }
 #line 1939 "parser.cpp"
     break;
 
-  case 43:
-#line 131 "parser.y"
-                                            { (yyval.nPtr) = opr('~', 1, (yyvsp[0].nPtr)); }
+  case 32:
+#line 114 "parser.y"
+                                                                 { (yyval.nPtr) = NULL; }
 #line 1945 "parser.cpp"
     break;
 
-  case 44:
-#line 132 "parser.y"
-                                            { (yyval.nPtr) = opr(UMINUS, 1, (yyvsp[0].nPtr)); }
+  case 33:
+#line 118 "parser.y"
+                                                                       { (yyval.swtch) = conc(CASE, (yyvsp[-2].nPtr), (yyvsp[0].nPtr), NULL);}
 #line 1951 "parser.cpp"
     break;
 
-  case 45:
-#line 133 "parser.y"
-                                            { (yyval.nPtr) = opr(OR, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 34:
+#line 119 "parser.y"
+                                                                       { (yyval.swtch) = conc(CASE, (yyvsp[-3].nPtr), (yyvsp[-1].nPtr), (yyvsp[0].swtch));}
 #line 1957 "parser.cpp"
     break;
 
-  case 46:
-#line 134 "parser.y"
-                                            { (yyval.nPtr) = opr(AND, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 35:
+#line 120 "parser.y"
+                                                                 { (yyval.swtch) = conc(DEFAULT, NULL, (yyvsp[0].nPtr), NULL);}
 #line 1963 "parser.cpp"
     break;
 
-  case 47:
-#line 135 "parser.y"
-                                            { (yyval.nPtr) = opr('|', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 36:
+#line 124 "parser.y"
+                                { (yyval.nPtr) = (yyvsp[0].nPtr); }
 #line 1969 "parser.cpp"
     break;
 
-  case 48:
-#line 136 "parser.y"
-                                            { (yyval.nPtr) = opr('^', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 37:
+#line 125 "parser.y"
+                                { (yyval.nPtr) = opr(';', 2, (yyvsp[-1].nPtr), (yyvsp[0].nPtr)); }
 #line 1975 "parser.cpp"
     break;
 
-  case 49:
-#line 137 "parser.y"
-                                            { (yyval.nPtr) = opr('&', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 38:
+#line 129 "parser.y"
+                                         { (yyval.nPtr) = con(INT_TYPE, (yyvsp[0].iValue)); }
 #line 1981 "parser.cpp"
     break;
 
-  case 50:
-#line 138 "parser.y"
-                                            { (yyval.nPtr) = opr('+', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 39:
+#line 130 "parser.y"
+                                    { (yyval.nPtr) = con(FLOAT_TYPE, (yyvsp[0].dValue)); }
 #line 1987 "parser.cpp"
     break;
 
-  case 51:
-#line 139 "parser.y"
-                                            { (yyval.nPtr) = opr('-', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 40:
+#line 131 "parser.y"
+                                    { (yyval.nPtr) = con(CHAR_TYPE, (yyvsp[0].cValue)); }
 #line 1993 "parser.cpp"
     break;
 
-  case 52:
-#line 140 "parser.y"
-                                            { (yyval.nPtr) = opr('*', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 41:
+#line 132 "parser.y"
+                                    { (yyval.nPtr) = con(BOOL_TYPE, (yyvsp[0].bValue)); }
 #line 1999 "parser.cpp"
     break;
 
-  case 53:
-#line 141 "parser.y"
-                                            { (yyval.nPtr) = opr('/', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 42:
+#line 133 "parser.y"
+                                            { (yyval.nPtr) = opr('!', 1, (yyvsp[0].nPtr)); }
 #line 2005 "parser.cpp"
     break;
 
-  case 54:
-#line 142 "parser.y"
-                                            { (yyval.nPtr) = opr('%', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 43:
+#line 134 "parser.y"
+                                            { (yyval.nPtr) = opr('~', 1, (yyvsp[0].nPtr)); }
 #line 2011 "parser.cpp"
     break;
 
-  case 55:
-#line 143 "parser.y"
-                                            { (yyval.nPtr) = opr('<', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 44:
+#line 135 "parser.y"
+                                            { (yyval.nPtr) = opr(UMINUS, 1, (yyvsp[0].nPtr)); }
 #line 2017 "parser.cpp"
     break;
 
-  case 56:
-#line 144 "parser.y"
-                                            { (yyval.nPtr) = opr('>', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 45:
+#line 136 "parser.y"
+                                            { (yyval.nPtr) = opr(OR, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2023 "parser.cpp"
     break;
 
-  case 57:
-#line 145 "parser.y"
-                                            { (yyval.nPtr) = opr(GE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 46:
+#line 137 "parser.y"
+                                            { (yyval.nPtr) = opr(AND, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2029 "parser.cpp"
     break;
 
-  case 58:
-#line 146 "parser.y"
-                                            { (yyval.nPtr) = opr(LE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 47:
+#line 138 "parser.y"
+                                            { (yyval.nPtr) = opr('|', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2035 "parser.cpp"
     break;
 
-  case 59:
-#line 147 "parser.y"
-                                            { (yyval.nPtr) = opr(NE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 48:
+#line 139 "parser.y"
+                                            { (yyval.nPtr) = opr('^', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2041 "parser.cpp"
     break;
 
-  case 60:
-#line 148 "parser.y"
-                                            { (yyval.nPtr) = opr(EQ, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 49:
+#line 140 "parser.y"
+                                            { (yyval.nPtr) = opr('&', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2047 "parser.cpp"
     break;
 
-  case 61:
-#line 149 "parser.y"
-                                                { (yyval.nPtr) = opr(SHIFT_LEFT, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 50:
+#line 141 "parser.y"
+                                            { (yyval.nPtr) = opr('+', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2053 "parser.cpp"
     break;
 
-  case 62:
-#line 150 "parser.y"
-                                                { (yyval.nPtr) = opr(SHIFT_RIGHT, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 51:
+#line 142 "parser.y"
+                                            { (yyval.nPtr) = opr('-', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2059 "parser.cpp"
     break;
 
-  case 63:
-#line 151 "parser.y"
-                                          { (yyval.nPtr) = (yyvsp[-1].nPtr); }
+  case 52:
+#line 143 "parser.y"
+                                            { (yyval.nPtr) = opr('*', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2065 "parser.cpp"
     break;
 
-  case 64:
-#line 155 "parser.y"
-                                    { (yyval.nPtr) = con(INT_TYPE, (yyvsp[0].iValue)); }
+  case 53:
+#line 144 "parser.y"
+                                            { (yyval.nPtr) = opr('/', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2071 "parser.cpp"
     break;
 
-  case 65:
-#line 156 "parser.y"
-                                    { (yyval.nPtr) = con(FLOAT_TYPE, (yyvsp[0].dValue)); }
+  case 54:
+#line 145 "parser.y"
+                                            { (yyval.nPtr) = opr('%', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2077 "parser.cpp"
     break;
 
-  case 66:
-#line 157 "parser.y"
-                                    { (yyval.nPtr) = con(CHAR_TYPE, (yyvsp[0].cValue)); }
+  case 55:
+#line 146 "parser.y"
+                                            { (yyval.nPtr) = opr('<', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2083 "parser.cpp"
     break;
 
-  case 67:
-#line 158 "parser.y"
-                                    { (yyval.nPtr) = con(BOOL_TYPE, (yyvsp[0].bValue)); }
+  case 56:
+#line 147 "parser.y"
+                                            { (yyval.nPtr) = opr('>', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2089 "parser.cpp"
     break;
 
-  case 68:
-#line 159 "parser.y"
-                                    { (yyval.nPtr) = id((yyvsp[0].sIndex)); }
+  case 57:
+#line 148 "parser.y"
+                                            { (yyval.nPtr) = opr(GE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2095 "parser.cpp"
     break;
 
-  case 69:
-#line 160 "parser.y"
-                                    { (yyval.nPtr) = NULL; }
+  case 58:
+#line 149 "parser.y"
+                                            { (yyval.nPtr) = opr(LE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2101 "parser.cpp"
     break;
 
-  case 70:
-#line 161 "parser.y"
-                                    { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
+  case 59:
+#line 150 "parser.y"
+                                            { (yyval.nPtr) = opr(NE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2107 "parser.cpp"
     break;
 
-  case 71:
-#line 162 "parser.y"
-                                    { (yyval.nPtr) = opr(PLUS_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
+  case 60:
+#line 151 "parser.y"
+                                            { (yyval.nPtr) = opr(EQ, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2113 "parser.cpp"
     break;
 
-  case 72:
-#line 163 "parser.y"
-                                    { (yyval.nPtr) = opr(MINUS_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
+  case 61:
+#line 152 "parser.y"
+                                                { (yyval.nPtr) = opr(SHIFT_LEFT, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2119 "parser.cpp"
     break;
 
-  case 73:
-#line 164 "parser.y"
-                                    { (yyval.nPtr) = opr(MUL_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
+  case 62:
+#line 153 "parser.y"
+                                                { (yyval.nPtr) = opr(SHIFT_RIGHT, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2125 "parser.cpp"
     break;
 
-  case 74:
-#line 165 "parser.y"
-                                    { (yyval.nPtr) = opr(DIV_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
+  case 63:
+#line 154 "parser.y"
+                                          { (yyval.nPtr) = (yyvsp[-1].nPtr); }
 #line 2131 "parser.cpp"
     break;
 
-  case 75:
-#line 166 "parser.y"
-                                    { (yyval.nPtr) = opr(PLUS_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
+  case 64:
+#line 158 "parser.y"
+                                    { (yyval.nPtr) = con(INT_TYPE, (yyvsp[0].iValue)); }
 #line 2137 "parser.cpp"
     break;
 
-  case 76:
-#line 167 "parser.y"
-                                    { (yyval.nPtr) = opr(SH_LE_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
+  case 65:
+#line 159 "parser.y"
+                                    { (yyval.nPtr) = con(FLOAT_TYPE, (yyvsp[0].dValue)); }
 #line 2143 "parser.cpp"
     break;
 
-  case 77:
-#line 168 "parser.y"
-                                    { (yyval.nPtr) = opr(PLUS_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
+  case 66:
+#line 160 "parser.y"
+                                    { (yyval.nPtr) = con(CHAR_TYPE, (yyvsp[0].cValue)); }
 #line 2149 "parser.cpp"
     break;
 
-  case 78:
-#line 169 "parser.y"
-                                    { (yyval.nPtr) = opr(AND_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
+  case 67:
+#line 161 "parser.y"
+                                    { (yyval.nPtr) = con(BOOL_TYPE, (yyvsp[0].bValue)); }
 #line 2155 "parser.cpp"
     break;
 
-  case 79:
-#line 170 "parser.y"
-                                    { (yyval.nPtr) = opr(OR_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
+  case 68:
+#line 162 "parser.y"
+                                    { (yyval.nPtr) = id((yyvsp[0].sIndex)); }
 #line 2161 "parser.cpp"
     break;
 
-  case 80:
-#line 171 "parser.y"
-                                    { (yyval.nPtr) = opr(PLUS_EQ, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
+  case 69:
+#line 163 "parser.y"
+                                    { (yyval.nPtr) = NULL; }
 #line 2167 "parser.cpp"
     break;
 
-  case 81:
-#line 172 "parser.y"
-                                    { (yyval.nPtr) = opr('!', 1, (yyvsp[0].nPtr)); }
+  case 70:
+#line 164 "parser.y"
+                                    { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr)); }
 #line 2173 "parser.cpp"
     break;
 
-  case 82:
-#line 173 "parser.y"
-                                    { (yyval.nPtr) = opr('~', 1, (yyvsp[0].nPtr)); }
+  case 71:
+#line 165 "parser.y"
+                                    { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), opr('+', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr))); }
 #line 2179 "parser.cpp"
     break;
 
-  case 83:
-#line 174 "parser.y"
-                                    { (yyval.nPtr) = opr(UPLUS, 1, (yyvsp[0].nPtr)); }
+  case 72:
+#line 166 "parser.y"
+                                    { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), opr('-', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr))); }
 #line 2185 "parser.cpp"
     break;
 
-  case 84:
-#line 175 "parser.y"
-                                    { (yyval.nPtr) = opr(UMINUS, 1, (yyvsp[0].nPtr)); }
+  case 73:
+#line 167 "parser.y"
+                                    { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), opr('*', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr))); }
 #line 2191 "parser.cpp"
     break;
 
-  case 85:
-#line 176 "parser.y"
-                                    { (yyval.nPtr) = opr(OR, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 74:
+#line 168 "parser.y"
+                                    { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), opr('/', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr))); }
 #line 2197 "parser.cpp"
     break;
 
-  case 86:
-#line 177 "parser.y"
-                                    { (yyval.nPtr) = opr(AND, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 75:
+#line 169 "parser.y"
+                                    { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), opr('%', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr))); }
 #line 2203 "parser.cpp"
     break;
 
-  case 87:
-#line 178 "parser.y"
-                                    { (yyval.nPtr) = opr('|', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 76:
+#line 170 "parser.y"
+                                    { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), opr(SHIFT_LEFT, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr))); }
 #line 2209 "parser.cpp"
     break;
 
-  case 88:
-#line 179 "parser.y"
-                                    { (yyval.nPtr) = opr('^', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 77:
+#line 171 "parser.y"
+                                    { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), opr(SHIFT_RIGHT, 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr))); }
 #line 2215 "parser.cpp"
     break;
 
-  case 89:
-#line 180 "parser.y"
-                                    { (yyval.nPtr) = opr('&', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 78:
+#line 172 "parser.y"
+                                    { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), opr('&', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr))); }
 #line 2221 "parser.cpp"
     break;
 
-  case 90:
-#line 181 "parser.y"
-                                    { (yyval.nPtr) = opr('+', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 79:
+#line 173 "parser.y"
+                                    { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), opr('|', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr))); }
 #line 2227 "parser.cpp"
     break;
 
-  case 91:
-#line 182 "parser.y"
-                                    { (yyval.nPtr) = opr('-', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 80:
+#line 174 "parser.y"
+                                    { (yyval.nPtr) = opr('=', 2, id((yyvsp[-2].sIndex)), opr('^', 2, id((yyvsp[-2].sIndex)), (yyvsp[0].nPtr))); }
 #line 2233 "parser.cpp"
     break;
 
-  case 92:
-#line 183 "parser.y"
-                                    { (yyval.nPtr) = opr('*', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 81:
+#line 175 "parser.y"
+                                    { (yyval.nPtr) = opr('!', 1, (yyvsp[0].nPtr)); }
 #line 2239 "parser.cpp"
     break;
 
-  case 93:
-#line 184 "parser.y"
-                                    { (yyval.nPtr) = opr('/', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 82:
+#line 176 "parser.y"
+                                    { (yyval.nPtr) = opr('~', 1, (yyvsp[0].nPtr)); }
 #line 2245 "parser.cpp"
     break;
 
-  case 94:
-#line 185 "parser.y"
-                                    { (yyval.nPtr) = opr('%', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 83:
+#line 177 "parser.y"
+                                    { (yyval.nPtr) = opr(UPLUS, 1, (yyvsp[0].nPtr)); }
 #line 2251 "parser.cpp"
     break;
 
-  case 95:
-#line 186 "parser.y"
-                                    { (yyval.nPtr) = opr('<', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 84:
+#line 178 "parser.y"
+                                    { (yyval.nPtr) = opr(UMINUS, 1, (yyvsp[0].nPtr)); }
 #line 2257 "parser.cpp"
     break;
 
-  case 96:
-#line 187 "parser.y"
-                                    { (yyval.nPtr) = opr('>', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 85:
+#line 179 "parser.y"
+                                    { (yyval.nPtr) = opr(OR, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2263 "parser.cpp"
     break;
 
-  case 97:
-#line 188 "parser.y"
-                                    { (yyval.nPtr) = opr(GE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 86:
+#line 180 "parser.y"
+                                    { (yyval.nPtr) = opr(AND, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2269 "parser.cpp"
     break;
 
-  case 98:
-#line 189 "parser.y"
-                                    { (yyval.nPtr) = opr(LE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 87:
+#line 181 "parser.y"
+                                    { (yyval.nPtr) = opr('|', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2275 "parser.cpp"
     break;
 
-  case 99:
-#line 190 "parser.y"
-                                    { (yyval.nPtr) = opr(NE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 88:
+#line 182 "parser.y"
+                                    { (yyval.nPtr) = opr('^', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2281 "parser.cpp"
     break;
 
-  case 100:
-#line 191 "parser.y"
-                                    { (yyval.nPtr) = opr(EQ, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 89:
+#line 183 "parser.y"
+                                    { (yyval.nPtr) = opr('&', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2287 "parser.cpp"
     break;
 
-  case 101:
-#line 192 "parser.y"
-                                    { (yyval.nPtr) = opr(SHIFT_LEFT, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 90:
+#line 184 "parser.y"
+                                    { (yyval.nPtr) = opr('+', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2293 "parser.cpp"
     break;
 
-  case 102:
-#line 193 "parser.y"
-                                    { (yyval.nPtr) = opr(SHIFT_RIGHT, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+  case 91:
+#line 185 "parser.y"
+                                    { (yyval.nPtr) = opr('-', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2299 "parser.cpp"
     break;
 
-  case 103:
-#line 194 "parser.y"
-                                    { (yyval.nPtr) = (yyvsp[-1].nPtr); }
+  case 92:
+#line 186 "parser.y"
+                                    { (yyval.nPtr) = opr('*', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 2305 "parser.cpp"
     break;
 
+  case 93:
+#line 187 "parser.y"
+                                    { (yyval.nPtr) = opr('/', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+#line 2311 "parser.cpp"
+    break;
 
-#line 2309 "parser.cpp"
+  case 94:
+#line 188 "parser.y"
+                                    { (yyval.nPtr) = opr('%', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+#line 2317 "parser.cpp"
+    break;
+
+  case 95:
+#line 189 "parser.y"
+                                    { (yyval.nPtr) = opr('<', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+#line 2323 "parser.cpp"
+    break;
+
+  case 96:
+#line 190 "parser.y"
+                                    { (yyval.nPtr) = opr('>', 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+#line 2329 "parser.cpp"
+    break;
+
+  case 97:
+#line 191 "parser.y"
+                                    { (yyval.nPtr) = opr(GE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+#line 2335 "parser.cpp"
+    break;
+
+  case 98:
+#line 192 "parser.y"
+                                    { (yyval.nPtr) = opr(LE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+#line 2341 "parser.cpp"
+    break;
+
+  case 99:
+#line 193 "parser.y"
+                                    { (yyval.nPtr) = opr(NE, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+#line 2347 "parser.cpp"
+    break;
+
+  case 100:
+#line 194 "parser.y"
+                                    { (yyval.nPtr) = opr(EQ, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+#line 2353 "parser.cpp"
+    break;
+
+  case 101:
+#line 195 "parser.y"
+                                    { (yyval.nPtr) = opr(SHIFT_LEFT, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+#line 2359 "parser.cpp"
+    break;
+
+  case 102:
+#line 196 "parser.y"
+                                    { (yyval.nPtr) = opr(SHIFT_RIGHT, 2, (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+#line 2365 "parser.cpp"
+    break;
+
+  case 103:
+#line 197 "parser.y"
+                                    { (yyval.nPtr) = (yyvsp[-1].nPtr); }
+#line 2371 "parser.cpp"
+    break;
+
+
+#line 2375 "parser.cpp"
 
       default: break;
     }
@@ -2327,6 +2393,7 @@ yyreduce:
   YY_STACK_PRINT (yyss, yyssp);
 
   *++yyvsp = yyval;
+  *++yylsp = yyloc;
 
   /* Now 'shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
@@ -2390,7 +2457,7 @@ yyerrlab:
 #endif
     }
 
-
+  yyerror_range[1] = yylloc;
 
   if (yyerrstatus == 3)
     {
@@ -2406,7 +2473,7 @@ yyerrlab:
       else
         {
           yydestruct ("Error: discarding",
-                      yytoken, &yylval);
+                      yytoken, &yylval, &yylloc);
           yychar = YYEMPTY;
         }
     }
@@ -2458,9 +2525,9 @@ yyerrlab1:
       if (yyssp == yyss)
         YYABORT;
 
-
+      yyerror_range[1] = *yylsp;
       yydestruct ("Error: popping",
-                  yystos[yystate], yyvsp);
+                  yystos[yystate], yyvsp, yylsp);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -2470,6 +2537,11 @@ yyerrlab1:
   *++yyvsp = yylval;
   YY_IGNORE_MAYBE_UNINITIALIZED_END
 
+  yyerror_range[2] = yylloc;
+  /* Using YYLLOC is tempting, but would change the location of
+     the lookahead.  YYLOC is available though.  */
+  YYLLOC_DEFAULT (yyloc, yyerror_range, 2);
+  *++yylsp = yyloc;
 
   /* Shift the error token.  */
   YY_SYMBOL_PRINT ("Shifting", yystos[yyn], yyvsp, yylsp);
@@ -2515,7 +2587,7 @@ yyreturn:
          user semantic actions for why this is necessary.  */
       yytoken = YYTRANSLATE (yychar);
       yydestruct ("Cleanup: discarding lookahead",
-                  yytoken, &yylval);
+                  yytoken, &yylval, &yylloc);
     }
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYABORT or YYACCEPT.  */
@@ -2524,7 +2596,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-                  yystos[+*yyssp], yyvsp);
+                  yystos[+*yyssp], yyvsp, yylsp);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -2537,7 +2609,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 202 "parser.y"
+#line 205 "parser.y"
 
 
 nodeType *con(int typ, ...) {
@@ -2642,10 +2714,6 @@ void freeNode(nodeType *p) {
         free(p->id.i);
     }
     delete p;
-}
-
-void yyerror(const std::string& s) {
-    fprintf(stdout, "%s\n", s.c_str());
 }
 
 int main(void) {

@@ -32,3 +32,7 @@
 *.app
 
 members.txt
+
+lexer.cpp
+parser.cpp
+parser.hpp

@@ -50,8 +50,10 @@ typedef struct switchStatement{
     struct switchStatement *nxt;
 } switchstatement;
 
-void logError(const std::string& msg);
+
 extern std::vector<std::string> msgs;
 std::string intToType(int type);
-bool isArithOper(int oper);
-bool isBoolOper(int oper);
+bool isIntOper(int oper);
+bool isRelationalOper(int oper);
+bool isLogicalOper(int oper);
+void yyerror(const std::string& s);

@@ -96,52 +96,6 @@ extern int yydebug;
     UPLUS = 302
   };
 #endif
-/* Tokens.  */
-#define INTEGER 258
-#define FLOAT 259
-#define CHAR 260
-#define BOOL 261
-#define VARIABLE 262
-#define WHILE 263
-#define IF 264
-#define PRINT 265
-#define FOR 266
-#define REPEAT 267
-#define UNTIL 268
-#define SWITCH 269
-#define CASE 270
-#define DEFAULT 271
-#define VOID 272
-#define BOOL_TYPE 273
-#define CHAR_TYPE 274
-#define INT_TYPE 275
-#define FLOAT_TYPE 276
-#define CONST 277
-#define RETURN 278
-#define CONTINUE 279
-#define BREAK 280
-#define IFX 281
-#define ELSE 282
-#define PLUS_EQ 283
-#define MINUS_EQ 284
-#define MUL_EQ 285
-#define DIV_EQ 286
-#define MOD_EQ 287
-#define SH_LE_EQ 288
-#define SH_RI_EQ 289
-#define AND_EQ 290
-#define XOR_EQ 291
-#define OR_EQ 292
-#define OR 293
-#define AND 294
-#define GE 295
-#define LE 296
-#define EQ 297
-#define NE 298
-#define SHIFT_LEFT 299
-#define SHIFT_RIGHT 300
-#define UMINUS 301
-#define UPLUS 302
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -157,7 +111,7 @@ union YYSTYPE
     nodeType *nPtr;                     /* node pointer */
     switchstatement *swtch;  
 
-#line 161 "parser.hpp"
+#line 115 "parser.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -165,9 +119,23 @@ typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
+/* Location type.  */
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+
 
 extern YYSTYPE yylval;
-
+extern YYLTYPE yylloc;
 int yyparse (void);
 
 #endif /* !YY_YY_PARSER_HPP_INCLUDED  */
