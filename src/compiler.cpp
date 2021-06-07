@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include "compiler.h"
 #include "parser.hpp"
+#include <string.h>
+#include <algorithm>
 
+const int MAX_LEVEL = 101;
 static int lbl;
+static int lvl = 0, mx_lvl = 0;
+static int numOfVars = 0;
+static std::map<std::string, symbolEntry> symbol_table[MAX_LEVEL], temp_table[MAX_LEVEL];
 char buff[100];
 int type1, type2;
 
@@ -27,12 +33,60 @@ int ex(nodeType *p) {
                 return FLOAT_TYPE;
         }
         break;
-    case typeId:        
-        sprintf(buff, "\tpush_%s\t%s\n", intToType(p->id.type).c_str(), p->id.i); msgs.push_back(buff);
-        return p->id.type;
+    case typeId:
+        {
+            int i = lvl;
+            for(; ~i; --i){
+                auto itr = temp_table[i].find(strdup(p->id.i));
+                if(itr != temp_table[i].end()){
+                    p->id.type = itr->second.type;
+                    sprintf(buff, "\tpush_%s\t%s_%d\n", intToType(p->id.type).c_str(), p->id.i, i); msgs.push_back(buff);
+                    return p->id.type;
+                }
+            }
+            logError("use of un declared variable");
+            return INT_TYPE;
+        }
         
     case typeOpr:
         switch(p->opr.oper) {
+        case BLOCK_STRUCTURE:
+            lvl += 1;
+            mx_lvl = std::max(mx_lvl, lvl);
+            ex(p->opr.op[0]);
+            temp_table[lvl].clear();
+            lvl -= 1;
+            break;
+        case DECL:
+            {
+                symbolEntry* se = new symbolEntry(strdup(p->opr.op[0]->id.i), p->opr.op[0]->id.type, "Variable", lvl, numOfVars++);
+                symbol_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
+                temp_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
+            }
+            break;
+        case DECL_CONST:
+            {
+                symbolEntry* se = new symbolEntry(strdup(p->opr.op[0]->id.i), p->opr.op[0]->id.type, "Constant", lvl, numOfVars++);
+                symbol_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
+                temp_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
+            }
+            break;
+        case ASSIGN:
+            {
+                symbolEntry* se = new symbolEntry(strdup(p->opr.op[0]->id.i), p->opr.op[0]->id.type, "Variable", lvl, numOfVars++);
+                symbol_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
+                temp_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
+            }
+            ex(p->opr.op[1]);
+            break;
+        case ASSIGN_CONST:
+            {
+                symbolEntry* se = new symbolEntry(strdup(p->opr.op[0]->id.i), p->opr.op[0]->id.type, "Constant", lvl, numOfVars++);
+                symbol_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
+                temp_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
+            }
+            ex(p->opr.op[1]);
+            break;
         case WHILE:
             sprintf(buff, "L%03d:\n", lbl1 = lbl++);msgs.push_back(buff);
             ex(p->opr.op[0]);
@@ -64,10 +118,20 @@ int ex(nodeType *p) {
             break;
         case '=':       
             type1 = ex(p->opr.op[1]);
-            type2 = p->opr.op[0]->id.type;
-            if (type1 != type2)
-                msgs.push_back("\t" + intToType(type1) + "_TO_" + intToType(type2) + "\n");
-            sprintf(buff, "\tpop_%s\t%s\n", intToType(type2).c_str(), p->opr.op[0]->id.i);msgs.push_back(buff);
+            {
+                int i = lvl;
+                for(; ~i; --i){
+                    auto itr = temp_table[i].find(strdup(p->opr.op[0]->id.i));
+                    if(itr != temp_table[i].end()){
+                        p->opr.op[0]->id.type = itr->second.type;
+                        type2 = p->opr.op[0]->id.type;
+                        if (type1 != type2)
+                            msgs.push_back("\t" + intToType(type1) + "_TO_" + intToType(type2) + "\n");
+                        sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(type2).c_str(), p->opr.op[0]->id.i, i);msgs.push_back(buff);
+                        return type2;
+                    }
+                }
+            }
             break;
         case UMINUS:    
             ex(p->opr.op[0]);
@@ -128,3 +192,40 @@ std::string intToType(int type)
     }
     return "";
 }
+
+void printSymbolTable(){
+    std::vector<symbolEntry> sytable;
+    for(int i = 0; i <= mx_lvl; ++i){
+        for (auto x: symbol_table[i]){
+            sytable.push_back(x.second);
+        }
+    }
+    auto compFunc = [](symbolEntry a, symbolEntry b){
+        return a.timestamp < b.timestamp;
+    };
+    std::sort(sytable.begin(), sytable.end(), compFunc);
+    printf("Scope\t|\tSymbol Type\t|\tReturn Type\t|\t\t\t\tName\n");
+    for(auto i : sytable){
+        printf("\n%d\t|\t%s\t|\t%s\t\t|", i.scope, i.symbolType.c_str(), intToType(i.type).c_str());
+        for(int j = 0; j < i.scope; ++j) printf("\t");
+        printf("%s\n", i.name.c_str());
+    }
+}
+/*
+
+Scope   symbolType      Type      Name
+
+0       const           int         x
+1       variable        int                 y
+2       variable        int                         z
+1       variable        int                 n
+
+{
+int x = 0;
+char y = x;
+{
+int z = x+y;
+}
+const float n = x;
+}
+*/

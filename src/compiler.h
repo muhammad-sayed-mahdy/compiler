@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <map>
 
 typedef enum { typeCon, typeId, typeOpr } nodeEnum;
 
@@ -50,8 +51,34 @@ typedef struct switchStatement{
     struct switchStatement *nxt;
 } switchstatement;
 
+
+struct symbolEntry{
+    std::string name;
+    int type; // int, float, ..
+    std::string symbolType; // function, variable, constant
+    int scope;
+    int timestamp;
+    symbolEntry(std::string nm, int ty, std::string sty, int sc, int ts){
+        name = nm, type = ty, symbolType = sty, scope = sc, timestamp = ts;
+    }
+};
+
+
 void logError(const std::string& msg);
 extern std::vector<std::string> msgs;
 std::string intToType(int type);
 bool isArithOper(int oper);
 bool isBoolOper(int oper);
+void printSymbolTable();
+
+
+/*
+
+Scope   symbolType      Type      Name
+
+0       const           int         x
+1       variable        int                 y
+2       variable        int                         z
+1       variable        int                 n
+
+*/

@@ -40,7 +40,7 @@ void yyerror(const std::string& s);
 "default"       return DEFAULT;
 "print"         return PRINT;
 "int"           return INT_TYPE;
-"double"        return FLOAT_TYPE;
+"float"         return FLOAT_TYPE;
 "char"          return CHAR_TYPE;
 "bool"          return BOOL_TYPE;
 "void"          return VOID;

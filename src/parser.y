@@ -12,7 +12,9 @@
 int noOfCases;
 
 nodeType *opr(int oper, int nops, ...);
+nodeType *new_id(int oper, int nops, nodeType * typ, char * name, ...);
 nodeType *id(char * i);
+nodeType *types(int i);
 nodeType *con(int typ, ...);
 struct switchStatement * conc(int oper, nodeType * exp, nodeType * stmnt, struct switchStatement * nxt);
 nodeType *switchOpr(nodeType* exp, struct switchStatement * ss);
@@ -41,7 +43,8 @@ std::vector<std::string> msgs;
 %token <cValue> CHAR
 %token <bValue> BOOL
 %token <sIndex> VARIABLE
-%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT VOID BOOL_TYPE CHAR_TYPE INT_TYPE FLOAT_TYPE CONST RETURN CONTINUE BREAK
+%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT CONST VOID BOOL_TYPE CHAR_TYPE INT_TYPE FLOAT_TYPE RETURN CONTINUE BREAK
+%token BLOCK_STRUCTURE DECL DECL_CONST ASSIGN ASSIGN_CONST
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -57,7 +60,7 @@ std::vector<std::string> msgs;
 %left '*' '/' '%'
 %nonassoc UMINUS UPLUS '~' '!'
 
-%type <nPtr> stmt expr stmt_list const_expr decl param_list arg_list
+%type <nPtr> stmt expr stmt_list const_expr decl param_list arg_list typ
 %type <swtch> switch_stmt
 
 %%
@@ -67,15 +70,15 @@ program:
         ;
 
 function:
-          function stmt         { ex($2); flushMsgs(msgs); freeNode($2); }
+          function stmt         { ex($2); printSymbolTable(); freeNode($2); }
         | /* NULL */
         ;
 
 decl:
-    typ VARIABLE                                          { $$ = id($2); }
-    | typ VARIABLE '=' expr                               { $$ = opr('=', 2, id($2), $4); }
-    | CONST typ VARIABLE                                  { $$ = id($3); }
-    | CONST typ VARIABLE '=' expr                         { $$ = opr('=', 2, id($3), $5); }
+    typ VARIABLE                                          { $$ = new_id(DECL, 2, $1, $2); } // req
+    | typ VARIABLE '=' expr                               { $$ = new_id(ASSIGN, 3, $1, $2, $4); } // req
+    | CONST typ VARIABLE                                  { $$ = new_id(DECL_CONST, 2, $2, $3); } // req
+    | CONST typ VARIABLE '=' expr                         { $$ = new_id(ASSIGN_CONST, 3, $2, $3, $5); } // req
     ;
 
 stmt:
@@ -85,9 +88,9 @@ stmt:
         | expr ';'                                               { $$ = $1; }
         | PRINT expr ';'                                         { $$ = opr(PRINT, 1, $2); }
         | WHILE '(' expr ')' stmt                                { $$ = opr(WHILE, 2, $3, $5); }
-        | decl ';'                                               { $$ = $1; }
-        | typ VARIABLE '(' param_list ')' stmt                   { $$ = NULL; }
-        | VOID VARIABLE '(' param_list ')' stmt                   { $$ = NULL; }
+        | decl ';'                                               { $$ = $1; } // req
+        | typ VARIABLE '(' param_list ')' stmt                   { $$ = NULL; } 
+        | VOID VARIABLE '(' param_list ')' stmt                   { $$ = NULL; } 
         | RETURN expr ';'                                        { $$ = opr(RETURN, 1, $2); }
         | RETURN ';'                                             { $$ = opr(RETURN, 0); }
         | REPEAT stmt  UNTIL '(' expr ')' ';'                    { $$ = opr(REPEAT, 2, $2, $5); }
@@ -96,7 +99,7 @@ stmt:
         | SWITCH '(' expr ')' '{' switch_stmt '}'                { $$ = switchOpr( $3, $6); }
         | IF '(' expr ')' stmt %prec IFX                         { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt                         { $$ = opr(IF, 3, $3, $5, $7); }
-        | '{' stmt_list '}'                                      { $$ = $2; }
+        | '{' stmt_list '}'                                      { $$ = opr(BLOCK_STRUCTURE, 1, $2); } // req
         ;
 
 param_list:
@@ -112,9 +115,9 @@ arg_list:
         ;
 
 switch_stmt:
-            CASE const_expr ':' stmt                                   { $$ = conc(CASE, $2, $4, NULL);}
-        | CASE const_expr ':' stmt switch_stmt                         { $$ = conc(CASE, $2, $4, $5);}
-        | DEFAULT ':' stmt                                       { $$ = conc(DEFAULT, NULL, $3, NULL);}
+            CASE const_expr ':' stmt                                { $$ = conc(CASE, $2, $4, NULL);}
+        | CASE const_expr ':' stmt switch_stmt                      { $$ = conc(CASE, $2, $4, $5);}
+        | DEFAULT ':' stmt                                          { $$ = conc(DEFAULT, NULL, $3, NULL);}
         ;
 
 stmt_list:
@@ -123,10 +126,10 @@ stmt_list:
         ;
 
 const_expr:
-          INTEGER                        { $$ = con(INT_TYPE, $1); }
-        | FLOAT                     { $$ = con(FLOAT_TYPE, $1); }
-        | CHAR                      { $$ = con(CHAR_TYPE, $1); }
-        | BOOL                      { $$ = con(BOOL_TYPE, $1); }
+          INTEGER                           { $$ = con(INT_TYPE, $1); }
+        | FLOAT                             { $$ = con(FLOAT_TYPE, $1); }
+        | CHAR                              { $$ = con(CHAR_TYPE, $1); }
+        | BOOL                              { $$ = con(BOOL_TYPE, $1); }
         | '!' const_expr                    { $$ = opr('!', 1, $2); }
         | '~' const_expr                    { $$ = opr('~', 1, $2); }
         | '-' const_expr %prec UMINUS       { $$ = opr(UMINUS, 1, $2); }
@@ -146,9 +149,9 @@ const_expr:
         | const_expr LE const_expr          { $$ = opr(LE, 2, $1, $3); }
         | const_expr NE const_expr          { $$ = opr(NE, 2, $1, $3); }
         | const_expr EQ const_expr          { $$ = opr(EQ, 2, $1, $3); }
-        | const_expr SHIFT_LEFT const_expr      { $$ = opr(SHIFT_LEFT, 2, $1, $3); }
-        | const_expr SHIFT_RIGHT const_expr     { $$ = opr(SHIFT_RIGHT, 2, $1, $3); }
-        | '(' const_expr ')'              { $$ = $2; }
+        | const_expr SHIFT_LEFT const_expr  { $$ = opr(SHIFT_LEFT, 2, $1, $3); }
+        | const_expr SHIFT_RIGHT const_expr { $$ = opr(SHIFT_RIGHT, 2, $1, $3); }
+        | '(' const_expr ')'                { $$ = $2; }
         ;
 
 expr:
@@ -195,10 +198,10 @@ expr:
         ;
 
 typ: 
-    INT_TYPE                          
-    | CHAR_TYPE                          
-    | BOOL_TYPE                          
-    | FLOAT_TYPE                           
+    INT_TYPE                        {$$ = types(0);}
+    | CHAR_TYPE                     {$$ = types(1);}
+    | BOOL_TYPE                     {$$ = types(2);}
+    | FLOAT_TYPE                    {$$ = types(3);}
 %%
 
 nodeType *con(int typ, ...) {
@@ -226,6 +229,48 @@ nodeType *id(char * i) {
     /* copy information */
     p->type = typeId;
     p->id.i = strdup(i);
+
+    return p;
+}
+
+nodeType *new_id(int oper, int nops, nodeType * typ, char * name, ...){
+    va_list ap;
+    nodeType *p = new nodeType();
+
+
+    /* copy information */
+    p->type = typeOpr;
+    p->opr.oper = oper;
+    p->opr.nops = nops;
+    p->opr.op = new nodeType* [nops-1];
+    p->opr.op[0] = new nodeType();
+    p->opr.op[0]->type = typeId;
+    p->opr.op[0]->id.i = strdup(name);
+    p->opr.op[0]->id.type = typ->id.type;
+
+    if(nops < 3) 
+        return p;
+    va_start(ap,name);
+    nodeType* aux = va_arg(ap, nodeType*);
+    va_end(ap);
+    p->opr.op[1] = opr('=', 2, id(name), aux);
+
+    return p;
+}
+
+nodeType *types(int i){
+    nodeType *p = new nodeType();
+
+
+    /* copy information */
+    p->type = typeId;
+    switch(i){
+        case 0: p->id.type = INT_TYPE; break;
+        case 1: p->id.type = CHAR_TYPE; break;
+        case 2: p->id.type = BOOL_TYPE; break;
+        case 3: p->id.type = FLOAT_TYPE; break;
+        case 4: p->id.type = VOID; break;
+    }
 
     return p;
 }
