@@ -1,4 +1,5 @@
-#include<string>
+#include <string>
+#include <vector>
 
 typedef enum { typeCon, typeId, typeOpr } nodeEnum;
 
@@ -50,3 +51,7 @@ typedef struct switchStatement{
 } switchstatement;
 
 void logError(const std::string& msg);
+extern std::vector<std::string> msgs;
+std::string intToType(int type);
+bool isArithOper(int oper);
+bool isBoolOper(int oper);

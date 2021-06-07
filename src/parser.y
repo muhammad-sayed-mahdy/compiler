@@ -5,6 +5,7 @@
 #include "compiler.h"
 #include <string>
 #include <string.h>
+#include <vector>
 
 /* prototypes */
 
@@ -20,6 +21,8 @@ int ex(nodeType *p);
 int yylex(void);
 
 void yyerror(const std::string& s);
+void flushMsgs(std::vector<std:: string>& msgs);
+std::vector<std::string> msgs;
 
 %}
 
@@ -64,7 +67,7 @@ program:
         ;
 
 function:
-          function stmt         { ex($2); freeNode($2); }
+          function stmt         { ex($2); flushMsgs(msgs); freeNode($2); }
         | /* NULL */
         ;
 
@@ -296,6 +299,8 @@ void freeNode(nodeType *p) {
         for (i = 0; i < p->opr.nops; i++)
             freeNode(p->opr.op[i]);
         delete[] p->opr.op;
+    } else if (p->type == typeId) {
+        free(p->id.i);
     }
     delete p;
 }
@@ -318,6 +323,13 @@ struct switchStatement * conc(int oper, nodeType * exp, nodeType * stmnt, struct
         ret->exp = exp;
     }
     return ret;
+}
+
+void flushMsgs(std::vector<std:: string>& msgs) {
+    for (auto& msg: msgs) {
+        printf("%s", msg.c_str());
+    }
+    msgs.clear();
 }
 /*
 x = 1;
