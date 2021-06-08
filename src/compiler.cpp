@@ -5,11 +5,10 @@
 #include <string.h>
 #include <algorithm>
 
-const int MAX_LEVEL = 101;
 static int lbl;
-static int lvl = 0, mx_lvl = 0;
+static int lvl = 0, mx_lvl = 0, const_assign = 0;
 static int numOfVars = 0;
-static std::map<std::string, symbolEntry> symbol_table[MAX_LEVEL], temp_table[MAX_LEVEL];
+static std::map<std::string, symbolEntry> temp_table[MAX_LEVEL];
 char buff[100];
 int type, type1, type2;
 
@@ -60,34 +59,20 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             lvl -= 1;
             break;
         case DECL:
-            {
-                symbolEntry* se = new symbolEntry(strdup(p->opr.op[0]->id.i), p->opr.op[0]->id.type, "Variable", lvl, numOfVars++);
-                symbol_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
-                temp_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
-            }
+            addVar(p->opr.op[0], "Variable");
             break;
         case DECL_CONST:
-            {
-                symbolEntry* se = new symbolEntry(strdup(p->opr.op[0]->id.i), p->opr.op[0]->id.type, "Constant", lvl, numOfVars++);
-                symbol_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
-                temp_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
-            }
+            addVar(p->opr.op[0], "Constant");
             break;
         case ASSIGN:
-            {
-                symbolEntry* se = new symbolEntry(strdup(p->opr.op[0]->id.i), p->opr.op[0]->id.type, "Variable", lvl, numOfVars++);
-                symbol_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
-                temp_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
-            }
+            addVar(p->opr.op[0], "Variable");
             ex(p->opr.op[1]);
             break;
         case ASSIGN_CONST:
-            {
-                symbolEntry* se = new symbolEntry(strdup(p->opr.op[0]->id.i), p->opr.op[0]->id.type, "Constant", lvl, numOfVars++);
-                symbol_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
-                temp_table[lvl].insert({strdup(p->opr.op[0]->id.i), *se});
-            }
+            const_assign = 1;
+            addVar(p->opr.op[0], "Constant");
             ex(p->opr.op[1]);
+            const_assign = 0;
             break;
         case CONTINUE:
             if (contLbl == -1)
@@ -100,55 +85,89 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             sprintf(buff, "\tJMP\tL%03d\n", breakLbl);msgs.push_back(buff);
             break;
         case WHILE:
+            lvl += 1;
+            mx_lvl = std::max(mx_lvl, lvl);
             sprintf(buff, "L%03d:\n", lbl1 = lbl++);msgs.push_back(buff);
             type = ex(p->opr.op[0]);
             if (type != BOOL_TYPE)
                 msgs.push_back("\t"+intToType(type)+"_TO_BOOL\n");
             sprintf(buff, "\tJZ\tL%03d\n", lbl2 = lbl++);msgs.push_back(buff);
-            ex(p->opr.op[1], lbl1, lbl2);
+            if(p->opr.op[1]->opr.oper == BLOCK_STRUCTURE)
+                ex(p->opr.op[1]->opr.op[0], lbl1, lbl2);
+            else
+                ex(p->opr.op[1], lbl1, lbl2);
             sprintf(buff, "\tJMP\tL%03d\n", lbl1);msgs.push_back(buff);
             sprintf(buff, "L%03d:\n", lbl2);msgs.push_back(buff);
+            temp_table[lvl].clear();
+            lvl -= 1;
             break;
         case REPEAT:
+            lvl += 1;
+            mx_lvl = std::max(mx_lvl, lvl);
             sprintf(buff, "L%03d:\n", lbl1 = lbl++);msgs.push_back(buff);
-            ex(p->opr.op[0], lbl2 = lbl++, lbl3 = lbl++);
+            if(p->opr.op[0]->opr.oper == BLOCK_STRUCTURE)
+                ex(p->opr.op[0]->opr.op[0], lbl2 = lbl++, lbl3 = lbl++);
+            else
+                ex(p->opr.op[0], lbl2 = lbl++, lbl3 = lbl++);
             sprintf(buff, "L%03d:\n", lbl2);msgs.push_back(buff);
             type = ex(p->opr.op[1]);
             if (type != BOOL_TYPE)
                 msgs.push_back("\t"+intToType(type)+"_TO_BOOL\n");
             sprintf(buff, "\tJZ\tL%03d\n", lbl1);msgs.push_back(buff);
             sprintf(buff, "L%03d:\n", lbl3);msgs.push_back(buff);
+            temp_table[lvl].clear();
+            lvl -= 1;
             break;
         case FOR:
+            lvl += 1;
+            mx_lvl = std::max(mx_lvl, lvl);
             ex(p->opr.op[0]);
             sprintf(buff, "L%03d:\n", lbl1 = lbl++);msgs.push_back(buff);
             type = ex(p->opr.op[1]);
             if (type != BOOL_TYPE)
                 msgs.push_back("\t"+intToType(type)+"_TO_BOOL\n");
             sprintf(buff, "\tJZ\tL%03d\n", lbl2 = lbl++);msgs.push_back(buff);
-            ex(p->opr.op[3], lbl1, lbl2);
+            if(p->opr.op[3]->opr.oper == BLOCK_STRUCTURE)
+                ex(p->opr.op[3]->opr.op[0], lbl1, lbl2);
+            else
+                ex(p->opr.op[3], lbl1, lbl2);
             ex(p->opr.op[2]);
             sprintf(buff, "\tJMP\tL%03d\n", lbl1);msgs.push_back(buff);
             sprintf(buff, "L%03d:\n", lbl2);msgs.push_back(buff);
+            temp_table[lvl].clear();
+            lvl -= 1;
             break;
         case IF:
+            lvl += 1;
+            mx_lvl = std::max(mx_lvl, lvl);
             type = ex(p->opr.op[0]);
             if (type != BOOL_TYPE)
                 msgs.push_back("\t"+intToType(type)+"_TO_BOOL\n");
             if (p->opr.nops > 2) {
                 /* if else */
                 sprintf(buff, "\tJZ\tL%03d\n", lbl1 = lbl++);msgs.push_back(buff);
-                ex(p->opr.op[1], contLbl, breakLbl);
+                if(p->opr.op[1]->opr.oper == BLOCK_STRUCTURE)
+                    ex(p->opr.op[1]->opr.op[0], contLbl, breakLbl);
+                else
+                    ex(p->opr.op[1], contLbl, breakLbl);
                 sprintf(buff, "\tJMP\tL%03d\n", lbl2 = lbl++);msgs.push_back(buff);
                 sprintf(buff, "L%03d:\n", lbl1);msgs.push_back(buff);
-                ex(p->opr.op[2], contLbl, breakLbl);
+                if(p->opr.op[2]->opr.oper == BLOCK_STRUCTURE)
+                    ex(p->opr.op[2]->opr.op[0], contLbl, breakLbl);
+                else
+                    ex(p->opr.op[2], contLbl, breakLbl);
                 sprintf(buff, "L%03d:\n", lbl2);msgs.push_back(buff);
             } else {
                 /* if */
                 sprintf(buff, "\tJZ\tL%03d\n", lbl1 = lbl++);msgs.push_back(buff);
-                ex(p->opr.op[1], contLbl, breakLbl);
+                if(p->opr.op[1]->opr.oper == BLOCK_STRUCTURE)
+                    ex(p->opr.op[1]->opr.op[0], contLbl, breakLbl);
+                else
+                    ex(p->opr.op[1], contLbl, breakLbl);
                 sprintf(buff, "L%03d:\n", lbl1);msgs.push_back(buff);
             }
+            temp_table[lvl].clear();
+            lvl -= 1;
             break;
         case PRINT:     
             type = ex(p->opr.op[0]);
@@ -161,6 +180,8 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
                 for(; ~i; --i){
                     auto itr = temp_table[i].find(strdup(p->opr.op[0]->id.i));
                     if(itr != temp_table[i].end()){
+                        if(itr->second.symbolType == "Constant" && !const_assign)
+                            yyerror("invalid assignment to constant after declaration");
                         p->opr.op[0]->id.type = itr->second.type;
                         type2 = p->opr.op[0]->id.type;
                         if (type1 != type2)
@@ -286,38 +307,7 @@ void printSymbolTable(){
         printf("%s\n", i.name.c_str());
     }
 }
-/*
 
-Scope   symbolType      Type      Name
-
-0       const           int         x
-1       variable        int                 y
-2       variable        int                         z
-1       variable        int                 n
-
-{
-int x = 0;
-char y = x;
-{
-char z = y+x;
-}
-const float n = x;
-}
-*/
-/*
-        block
-        3 semi colon
-        assign
-        =
-        assign
-        =
-        block
-        assign
-        =
-        +
-        assign const
-        =
-        */
 bool isRelationalOper(int oper)
 {
     int operators[] = {'<', '>', GE, LE, NE, EQ };
@@ -335,3 +325,42 @@ bool isLogicalOper(int oper)
     int operators[] = {AND, OR, '!'};
     return std::find(operators, operators+3, oper) != operators+3;
 }
+
+void addVar(nodeType* p, std::string sytyp){
+    auto itr = temp_table[lvl].find(strdup(p->id.i));
+    if(itr != temp_table[lvl].end()){
+        yyerror("multiple declaration of same variable");
+        return;
+    }
+    symbolEntry* se = new symbolEntry(strdup(p->id.i), p->id.type, sytyp, lvl, numOfVars++);
+    symbol_table[lvl].insert({{strdup(p->id.i),numOfVars}, *se});
+    temp_table[lvl].insert({strdup(p->id.i), *se});
+}
+/*
+{
+int x = 0;
+char y = x;
+{
+char z = y+x;
+}
+const float n = x;
+x = 5;
+}
+*/
+/*
+{
+while(1)
+    {
+        for (int i = 0; i < 5; i+=1)
+        {
+            int x = 5;
+            int i = 3;
+            if (i == 2){
+                int i = 6;
+                break;
+            }
+        }
+        print 100;
+    }
+}
+*/

@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <utility>
 
 typedef enum { typeCon, typeId, typeOpr } nodeEnum;
 
@@ -77,8 +78,11 @@ Scope   symbolType      Type      Name
 
 */
 extern std::vector<std::string> msgs;
+const int MAX_LEVEL = 101;
+static std::map<std::pair<std::string,int>, symbolEntry> symbol_table[MAX_LEVEL];
 std::string intToType(int type);
 bool isIntOper(int oper);
 bool isRelationalOper(int oper);
 bool isLogicalOper(int oper);
 void yyerror(const std::string& s);
+void addVar(nodeType* p, std::string sytyp);
