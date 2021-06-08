@@ -19,7 +19,7 @@ nodeType *con(int typ, ...);
 struct switchStatement * conc(int oper, nodeType * exp, nodeType * stmnt, struct switchStatement * nxt);
 nodeType *switchOpr(nodeType* exp, struct switchStatement * ss);
 void freeNode(nodeType *p);
-int ex(nodeType *p);
+int ex(nodeType *p, int contLbl = -1, int breakLbl = -1);
 int yylex(void);
 
 void yyerror(const std::string& s);
@@ -86,8 +86,8 @@ decl:
 
 stmt:
           ';'                                                    { $$ = NULL; }
-        | CONTINUE ';'                                           { $$ = NULL; }
-        | BREAK ';'                                              { $$ = NULL; }  
+        | CONTINUE ';'                                           { $$ = opr(CONTINUE, 0); }
+        | BREAK ';'                                              { $$ = opr(BREAK, 0); }  
         | expr ';'                                               { $$ = $1; }
         | PRINT expr ';'                                         { $$ = opr(PRINT, 1, $2); }
         | WHILE '(' expr ')' stmt                                { $$ = opr(WHILE, 2, $3, $5); }

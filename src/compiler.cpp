@@ -13,8 +13,8 @@ static std::map<std::string, symbolEntry> symbol_table[MAX_LEVEL], temp_table[MA
 char buff[100];
 int type, type1, type2;
 
-int ex(nodeType *p) {
-    int lbl1, lbl2;
+int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
+    int lbl1, lbl2, lbl3;
 
     if (!p) return VOID;
     switch(p->type) {
@@ -55,7 +55,7 @@ int ex(nodeType *p) {
         case BLOCK_STRUCTURE:
             lvl += 1;
             mx_lvl = std::max(mx_lvl, lvl);
-            ex(p->opr.op[0]);
+            ex(p->opr.op[0], contLbl, breakLbl);
             temp_table[lvl].clear();
             lvl -= 1;
             break;
@@ -89,23 +89,35 @@ int ex(nodeType *p) {
             }
             ex(p->opr.op[1]);
             break;
+        case CONTINUE:
+            if (contLbl == -1)
+                yyerror("continue statement not within a loop");
+            sprintf(buff, "\tJMP\tL%03d\n", contLbl);msgs.push_back(buff);
+            break;
+        case BREAK:
+            if (contLbl == -1)
+                yyerror("break statement not within loop or switch");
+            sprintf(buff, "\tJMP\tL%03d\n", breakLbl);msgs.push_back(buff);
+            break;
         case WHILE:
             sprintf(buff, "L%03d:\n", lbl1 = lbl++);msgs.push_back(buff);
             type = ex(p->opr.op[0]);
             if (type != BOOL_TYPE)
                 msgs.push_back("\t"+intToType(type)+"_TO_BOOL\n");
             sprintf(buff, "\tJZ\tL%03d\n", lbl2 = lbl++);msgs.push_back(buff);
-            ex(p->opr.op[1]);
+            ex(p->opr.op[1], lbl1, lbl2);
             sprintf(buff, "\tJMP\tL%03d\n", lbl1);msgs.push_back(buff);
             sprintf(buff, "L%03d:\n", lbl2);msgs.push_back(buff);
             break;
         case REPEAT:
             sprintf(buff, "L%03d:\n", lbl1 = lbl++);msgs.push_back(buff);
-            ex(p->opr.op[0]);
+            ex(p->opr.op[0], lbl2 = lbl++, lbl3 = lbl++);
+            sprintf(buff, "L%03d:\n", lbl2);msgs.push_back(buff);
             type = ex(p->opr.op[1]);
             if (type != BOOL_TYPE)
                 msgs.push_back("\t"+intToType(type)+"_TO_BOOL\n");
             sprintf(buff, "\tJZ\tL%03d\n", lbl1);msgs.push_back(buff);
+            sprintf(buff, "L%03d:\n", lbl3);msgs.push_back(buff);
             break;
         case FOR:
             ex(p->opr.op[0]);
@@ -114,7 +126,7 @@ int ex(nodeType *p) {
             if (type != BOOL_TYPE)
                 msgs.push_back("\t"+intToType(type)+"_TO_BOOL\n");
             sprintf(buff, "\tJZ\tL%03d\n", lbl2 = lbl++);msgs.push_back(buff);
-            ex(p->opr.op[3]);
+            ex(p->opr.op[3], lbl1, lbl2);
             ex(p->opr.op[2]);
             sprintf(buff, "\tJMP\tL%03d\n", lbl1);msgs.push_back(buff);
             sprintf(buff, "L%03d:\n", lbl2);msgs.push_back(buff);
@@ -126,15 +138,15 @@ int ex(nodeType *p) {
             if (p->opr.nops > 2) {
                 /* if else */
                 sprintf(buff, "\tJZ\tL%03d\n", lbl1 = lbl++);msgs.push_back(buff);
-                ex(p->opr.op[1]);
+                ex(p->opr.op[1], contLbl, breakLbl);
                 sprintf(buff, "\tJMP\tL%03d\n", lbl2 = lbl++);msgs.push_back(buff);
                 sprintf(buff, "L%03d:\n", lbl1);msgs.push_back(buff);
-                ex(p->opr.op[2]);
+                ex(p->opr.op[2], contLbl, breakLbl);
                 sprintf(buff, "L%03d:\n", lbl2);msgs.push_back(buff);
             } else {
                 /* if */
                 sprintf(buff, "\tJZ\tL%03d\n", lbl1 = lbl++);msgs.push_back(buff);
-                ex(p->opr.op[1]);
+                ex(p->opr.op[1], contLbl, breakLbl);
                 sprintf(buff, "L%03d:\n", lbl1);msgs.push_back(buff);
             }
             break;
@@ -178,8 +190,8 @@ int ex(nodeType *p) {
             msgs.push_back("\tBIT_NOT_"+intToType(type)+'\n');
             return type;
         case ';':
-            ex(p->opr.op[0]);
-            ex(p->opr.op[1]);
+            ex(p->opr.op[0], contLbl, breakLbl);
+            ex(p->opr.op[1], contLbl, breakLbl);
             return VOID;
         default:
             type1 = ex(p->opr.op[0]);
