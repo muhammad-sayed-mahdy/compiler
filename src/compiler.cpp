@@ -91,32 +91,56 @@ int ex(nodeType *p) {
             break;
         case WHILE:
             sprintf(buff, "L%03d:\n", lbl1 = lbl++);msgs.push_back(buff);
-            ex(p->opr.op[0]);
-            sprintf(buff, "\tjz\tL%03d\n", lbl2 = lbl++);msgs.push_back(buff);
+            type = ex(p->opr.op[0]);
+            if (type != BOOL_TYPE)
+                msgs.push_back("\t"+intToType(type)+"_TO_BOOL\n");
+            sprintf(buff, "\tJZ\tL%03d\n", lbl2 = lbl++);msgs.push_back(buff);
             ex(p->opr.op[1]);
-            sprintf(buff, "\tjmp\tL%03d\n", lbl1);msgs.push_back(buff);
+            sprintf(buff, "\tJMP\tL%03d\n", lbl1);msgs.push_back(buff);
+            sprintf(buff, "L%03d:\n", lbl2);msgs.push_back(buff);
+            break;
+        case REPEAT:
+            sprintf(buff, "L%03d:\n", lbl1 = lbl++);msgs.push_back(buff);
+            ex(p->opr.op[0]);
+            type = ex(p->opr.op[1]);
+            if (type != BOOL_TYPE)
+                msgs.push_back("\t"+intToType(type)+"_TO_BOOL\n");
+            sprintf(buff, "\tJZ\tL%03d\n", lbl1);msgs.push_back(buff);
+            break;
+        case FOR:
+            ex(p->opr.op[0]);
+            sprintf(buff, "L%03d:\n", lbl1 = lbl++);msgs.push_back(buff);
+            type = ex(p->opr.op[1]);
+            if (type != BOOL_TYPE)
+                msgs.push_back("\t"+intToType(type)+"_TO_BOOL\n");
+            sprintf(buff, "\tJZ\tL%03d\n", lbl2 = lbl++);msgs.push_back(buff);
+            ex(p->opr.op[3]);
+            ex(p->opr.op[2]);
+            sprintf(buff, "\tJMP\tL%03d\n", lbl1);msgs.push_back(buff);
             sprintf(buff, "L%03d:\n", lbl2);msgs.push_back(buff);
             break;
         case IF:
-            ex(p->opr.op[0]);
+            type = ex(p->opr.op[0]);
+            if (type != BOOL_TYPE)
+                msgs.push_back("\t"+intToType(type)+"_TO_BOOL\n");
             if (p->opr.nops > 2) {
                 /* if else */
-                sprintf(buff, "\tjz\tL%03d\n", lbl1 = lbl++);msgs.push_back(buff);
+                sprintf(buff, "\tJZ\tL%03d\n", lbl1 = lbl++);msgs.push_back(buff);
                 ex(p->opr.op[1]);
-                sprintf(buff, "\tjmp\tL%03d\n", lbl2 = lbl++);msgs.push_back(buff);
+                sprintf(buff, "\tJMP\tL%03d\n", lbl2 = lbl++);msgs.push_back(buff);
                 sprintf(buff, "L%03d:\n", lbl1);msgs.push_back(buff);
                 ex(p->opr.op[2]);
                 sprintf(buff, "L%03d:\n", lbl2);msgs.push_back(buff);
             } else {
                 /* if */
-                sprintf(buff, "\tjz\tL%03d\n", lbl1 = lbl++);msgs.push_back(buff);
+                sprintf(buff, "\tJZ\tL%03d\n", lbl1 = lbl++);msgs.push_back(buff);
                 ex(p->opr.op[1]);
                 sprintf(buff, "L%03d:\n", lbl1);msgs.push_back(buff);
             }
             break;
         case PRINT:     
-            ex(p->opr.op[0]);
-            sprintf(buff, "\tprint\n");msgs.push_back(buff);
+            type = ex(p->opr.op[0]);
+            sprintf(buff, "\tPRINT_%s\n", intToType(type).c_str());msgs.push_back(buff);
             break;
         case '=':       
             type1 = ex(p->opr.op[1]);
@@ -153,12 +177,11 @@ int ex(nodeType *p) {
                 yyerror("Expression must have integral type");
             msgs.push_back("\tBIT_NOT_"+intToType(type)+'\n');
             return type;
+        case ';':
+            ex(p->opr.op[0]);
+            ex(p->opr.op[1]);
+            return VOID;
         default:
-            if (p->opr.oper == ';'){
-                ex(p->opr.op[0]);
-                ex(p->opr.op[1]);
-                return VOID;
-            }
             type1 = ex(p->opr.op[0]);
             int sz1 = msgs.size();
             type2 = ex(p->opr.op[1]);
