@@ -73,7 +73,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             }
             addVar(p->opr.op[0]->opr.op[0], "Function");
             std::string fnm = p->opr.op[0]->opr.op[0]->id.i;
-            msgs.push_back("\tPROC\t" + fnm + "\n");
+            msgs.push_back("PROC\t" + fnm + "\n");
             lvl += 1;
             mx_lvl = std::max(mx_lvl, lvl);
             is_parm = 1;
@@ -83,6 +83,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
                 ex(p->opr.op[2]->opr.op[0]);
             temp_table[lvl].clear();
             lvl -= 1;
+            msgs.push_back("ENDP\t" + fnm + "\n");
             break;
         }
         case VOID_FUNC:
@@ -94,7 +95,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             p->opr.op[0]->id.type = VOID;
             addVar(p->opr.op[0], "Function");
             std::string fnm = p->opr.op[0]->id.i;
-            msgs.push_back("\tPROC\t" + fnm + "\n");
+            msgs.push_back("PROC\t" + fnm + "\n");
             lvl += 1;
             mx_lvl = std::max(mx_lvl, lvl);
             is_parm = 1;
@@ -104,6 +105,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
                 ex(p->opr.op[2]->opr.op[0]);
             temp_table[lvl].clear();
             lvl -= 1;
+            msgs.push_back("ENDP\t" + fnm + "\n");
             break;
         }
         case PARAM_LIST:
@@ -152,7 +154,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             arg_num = old_arg_num;
             cal_name = old_cal_name;
 
-            msgs.push_back("\tCALL\n");
+            msgs.push_back("\tCALL\t" + fname +"\n");
             return typ;
         }
         case RETURN:
@@ -417,15 +419,15 @@ std::string intToType(int type, int f)
     switch (type)
     {
     case VOID:
-        if(f) return "VOID";
+        if(f) return "VOID ";
         yyerror("can't convert void");
         return "";
     case BOOL_TYPE:
-        return "BOOL";
+        return "BOOL ";
     case CHAR_TYPE:
-        return "CHAR";
+        return "CHAR ";
     case INT_TYPE:
-        return "INT";
+        return "INT  ";
     case FLOAT_TYPE:
         return "FLOAT";
     }
@@ -445,7 +447,7 @@ void printSymbolTable(){
     std::sort(sytable.begin(), sytable.end(), compFunc);
     printf("Function\t|\tScope\t|\tSymbol Type\t|\tReturn Type\t|\t\t\t\tName\n");
     for(auto i : sytable){
-        printf("\n%s\t|\t%d\t|\t%s\t|\t%s\t\t|", i.funcName.c_str(), i.scope, i.symbolType.c_str(), intToType(i.type,1).c_str());
+        printf("\n%s\t\t|\t%d\t\t|\t%s\t|\t%s\t\t|", i.funcName.c_str(), i.scope, i.symbolType.c_str(), intToType(i.type,1).c_str());
         for(int j = 0; j < i.scope; ++j) printf("\t");
         printf("%s\n", i.name.c_str());
     }
@@ -470,7 +472,7 @@ bool isLogicalOper(int oper)
 }
 
 void addVar(nodeType* p, std::string sytyp){
-    std::string fn = (lvl)? func_names.back(): "Gloabal";
+    std::string fn = (lvl)? func_names.back(): "Global";
     auto itr = temp_table[lvl].find(strdup(p->id.i));
     if(itr != temp_table[lvl].end()){
         yyerror("multiple declaration of same variable");
