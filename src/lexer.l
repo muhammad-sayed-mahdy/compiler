@@ -5,6 +5,7 @@
 #include <string>
 #include <string.h>
 void yyerror(const std::string& s);
+bool ERRORS = false;
 %}
 
 %option yylineno
@@ -102,4 +103,5 @@ int yywrap(void) {
 
 void yyerror(const std::string& s) {
     fprintf(stderr,"Line: %d: error: %s\n",yylineno,s.c_str());
+    ERRORS = true;
 }
