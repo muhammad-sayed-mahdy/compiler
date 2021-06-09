@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     std::string symFileName = "data/symbol_table.txt";
     if (argc > 1)
         inFileName = argv[1];
-    if (argc > 2);
+    if (argc > 2)
         outFileName = argv[2];
     if (argc > 3)
         symFileName = argv[3];
@@ -28,7 +28,7 @@ int main(int argc, char** argv)
         return 0;
     }
     yyparse();
-    
+
     FILE* quad = fopen(outFileName.c_str(), "w");
     if (quad == NULL)
     {
