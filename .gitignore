@@ -36,3 +36,5 @@ members.txt
 lexer.cpp
 parser.cpp
 parser.hpp
+data/*.quad
+data/*.txt

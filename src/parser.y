@@ -70,11 +70,11 @@ std::vector<std::string> msgs;
 %%
 
 program:
-        function                { exit(0); }
+        function                {  }
         ;
 
 function:
-          function stmt         { ex($2); flushMsgs(msgs); printSymbolTable(); freeNode($2); }
+          function stmt         { ex($2); freeNode($2); }
         | /* NULL */
         ;
 
@@ -104,6 +104,8 @@ stmt:
         | IF '(' expr ')' stmt %prec IFX                         { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt                         { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'                                      { $$ = opr(BLOCK_STRUCTURE, 1, $2); } // req
+        | error ';'                                              { $$ = NULL; }
+        | error '}'                                              { $$ = NULL; }
         ;
 
 param_list:
@@ -354,10 +356,6 @@ void freeNode(nodeType *p) {
     delete p;
 }
 
-int main(void) {
-    yyparse();
-    return 0;
-}
 
 struct switchStatement * conc(int oper, nodeType * exp, nodeType * stmnt, struct switchStatement * nxt){
     struct switchStatement * ret = new switchstatement();

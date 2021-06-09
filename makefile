@@ -1,6 +1,6 @@
 all:
 	@make -s build
-	# @make -s run
+	@make -s run
 
 build:
 	@make -s gen
@@ -11,8 +11,8 @@ gen:
 	bison src/parser.y -d -o src/parser.cpp
 
 comp:
-	g++ src/compiler.cpp src/parser.cpp src/lexer.cpp	
+	g++ src/main.cpp src/compiler.cpp src/parser.cpp src/lexer.cpp -o src/a.out
 
 
-# run:
-# 	./src/a.out data/input.mpp -o data/out.quad -s data/symbol_table.txt
+run:
+	./src/a.out data/in.cpp data/out.quad data/symbol_table.txt
