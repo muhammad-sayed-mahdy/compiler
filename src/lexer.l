@@ -81,7 +81,7 @@ void yyerror(const std::string& s);
                 return INTEGER;
             }
 
-(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)  {
+(0|[1-9][0-9]*)\.[0-9]*  {
                 char * tmp = strdup(yytext);
                 yylval.dValue = atof(tmp);
                 return FLOAT;

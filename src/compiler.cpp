@@ -6,9 +6,10 @@
 #include <algorithm>
 
 static int lbl;
-static int lvl = 0, mx_lvl = 0, const_assign = 0;
-static int numOfVars = 0;
+static int lvl = 0, mx_lvl = 0, const_assign = 0, glob_ass = 0;
+static int numOfVars = 0, is_parm = 0, arg_num = 0;
 static std::map<std::string, symbolEntry> temp_table[MAX_LEVEL];
+static std::string cal_name;
 char buff[100];
 int type, type1, type2;
 
@@ -50,6 +51,12 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
         
         
     case typeOpr:
+        if(!lvl && !((p->opr.oper >= VOID_FUNC && p->opr.oper <= FUNC_DEC) || (p->opr.oper >= DECL && p->opr.oper <= ASSIGN_CONST))){
+            if(!glob_ass){
+                yyerror("invalid global statement");
+                return VOID;
+            }
+        }
         switch(p->opr.oper) {
         case BLOCK_STRUCTURE:
             lvl += 1;
@@ -58,21 +65,156 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             temp_table[lvl].clear();
             lvl -= 1;
             break;
+        case FUNC_DEC:
+        {
+            if(lvl) {
+                yyerror("function declaration should be in global scope");
+                return VOID;
+            }
+            addVar(p->opr.op[0]->opr.op[0], "Function");
+            std::string fnm = p->opr.op[0]->opr.op[0]->id.i;
+            msgs.push_back("\tPROC\t" + fnm + "\n");
+            lvl += 1;
+            mx_lvl = std::max(mx_lvl, lvl);
+            is_parm = 1;
+            ex(p->opr.op[1]);
+            is_parm = 0;
+            if(p->opr.op[2]->opr.oper == BLOCK_STRUCTURE)
+                ex(p->opr.op[2]->opr.op[0]);
+            temp_table[lvl].clear();
+            lvl -= 1;
+            break;
+        }
+        case VOID_FUNC:
+        {
+            if(lvl) {
+                yyerror("function declaration should be in global scope");
+                return VOID;
+            }
+            p->opr.op[0]->id.type = VOID;
+            addVar(p->opr.op[0], "Function");
+            std::string fnm = p->opr.op[0]->id.i;
+            msgs.push_back("\tPROC\t" + fnm + "\n");
+            lvl += 1;
+            mx_lvl = std::max(mx_lvl, lvl);
+            is_parm = 1;
+            ex(p->opr.op[1]);
+            is_parm = 0;
+            if(p->opr.op[2]->opr.oper == BLOCK_STRUCTURE)
+                ex(p->opr.op[2]->opr.op[0]);
+            temp_table[lvl].clear();
+            lvl -= 1;
+            break;
+        }
+        case PARAM_LIST:
+            if(p->opr.nops > 0) ex(p->opr.op[0]);
+            if(p->opr.nops > 1) ex(p->opr.op[1]);
+            break;
+        case ARG_LIST:
+            if(p->opr.nops > 0){
+                arg_num++;
+                if(arg_num > parm_types[cal_name].size()){
+                    yyerror("More Arguements than function definition");
+                    break;
+                }
+                if(p->opr.nops > 1) ex(p->opr.op[1]);
+                else if(arg_num < parm_types[cal_name].size()){
+                    yyerror("Less Arguements than function definition");
+                }
+                int ty = ex(p->opr.op[0]);
+                arg_num--;
+                if (ty != parm_types[cal_name][arg_num])
+                    msgs.push_back("\t" + intToType(ty) + "_TO_" + intToType(parm_types[cal_name][arg_num]) + "\n");
+            }
+            else{
+                if(arg_num < parm_types[cal_name].size()){
+                    yyerror("Less Arguements than function definition");
+                }
+            }
+            break;
+        case CAL:
+        {
+            std::string fname = p->opr.op[0]->id.i;
+            auto itr = parm_types.find(fname);
+            if(itr == parm_types.end()){
+                yyerror("cal to undefined function");
+                break;
+            }
+
+            int typ = temp_table[0].find(fname)->second.type;
+
+            int old_arg_num = arg_num;
+            std::string old_cal_name = cal_name;
+            arg_num = 0, cal_name = fname;
+
+            ex(p->opr.op[1]);
+
+            arg_num = old_arg_num;
+            cal_name = old_cal_name;
+
+            msgs.push_back("\tCALL\n");
+            return typ;
+        }
+        case RETURN:
+            {
+                std::string fnm = func_names.back();
+                int typ = temp_table[0].find(fnm)->second.type;
+                if(p->opr.nops == 0 && typ != VOID){
+                    yyerror("expected return value");
+                    return VOID;
+                }
+                if(p->opr.nops > 0 && typ == VOID){
+                    yyerror("invalid return statement for void expression");
+                    return VOID;
+                }
+                if(p->opr.nops){
+                    int exptyp = ex(p->opr.op[0]);
+                    if(exptyp != typ){
+                        msgs.push_back("\t" + intToType(exptyp) + "_TO_" + intToType(typ) + "\n");
+                    }
+                }
+                msgs.push_back("\tRETURN\n");
+            }
+            break;
         case DECL:
             addVar(p->opr.op[0], "Variable");
+            if(is_parm){
+                int ty = p->opr.op[0]->id.type; parm_types[func_names.back()].push_back(ty);
+                sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, 1);msgs.push_back(buff);
+            }
             break;
         case DECL_CONST:
             addVar(p->opr.op[0], "Constant");
+            if(is_parm){
+                int ty = p->opr.op[0]->id.type; parm_types[func_names.back()].push_back(ty);
+                sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, 1);msgs.push_back(buff);
+            }
             break;
         case ASSIGN:
             addVar(p->opr.op[0], "Variable");
+            if(is_parm){
+                int ty = p->opr.op[0]->id.type; parm_types[func_names.back()].push_back(ty);
+                sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, 1);msgs.push_back(buff);
+                yyerror("default function parameters are not allowed");
+                break;
+            }
+            glob_ass = 1;
             ex(p->opr.op[1]);
+            glob_ass = 0;
             break;
         case ASSIGN_CONST:
-            const_assign = 1;
             addVar(p->opr.op[0], "Constant");
+            if(is_parm){
+                int ty = p->opr.op[0]->id.type; parm_types[func_names.back()].push_back(ty);
+                sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, 1);msgs.push_back(buff);
+                yyerror("default function parameters are not allowed");
+                break;
+            }
+            glob_ass = 1;
+            const_assign = 1;
             ex(p->opr.op[1]);
             const_assign = 0;
+            glob_ass = 0;
             break;
         case CONTINUE:
             if (contLbl == -1)
@@ -270,11 +412,12 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
 }
 
 
-std::string intToType(int type)
+std::string intToType(int type, int f)
 {
     switch (type)
     {
     case VOID:
+        if(f) return "VOID";
         yyerror("can't convert void");
         return "";
     case BOOL_TYPE:
@@ -300,9 +443,9 @@ void printSymbolTable(){
         return a.timestamp < b.timestamp;
     };
     std::sort(sytable.begin(), sytable.end(), compFunc);
-    printf("Scope\t|\tSymbol Type\t|\tReturn Type\t|\t\t\t\tName\n");
+    printf("Function\t|\tScope\t|\tSymbol Type\t|\tReturn Type\t|\t\t\t\tName\n");
     for(auto i : sytable){
-        printf("\n%d\t|\t%s\t|\t%s\t\t|", i.scope, i.symbolType.c_str(), intToType(i.type).c_str());
+        printf("\n%s\t|\t%d\t|\t%s\t|\t%s\t\t|", i.funcName.c_str(), i.scope, i.symbolType.c_str(), intToType(i.type,1).c_str());
         for(int j = 0; j < i.scope; ++j) printf("\t");
         printf("%s\n", i.name.c_str());
     }
@@ -327,15 +470,19 @@ bool isLogicalOper(int oper)
 }
 
 void addVar(nodeType* p, std::string sytyp){
+    std::string fn = (lvl)? func_names.back(): "Gloabal";
     auto itr = temp_table[lvl].find(strdup(p->id.i));
     if(itr != temp_table[lvl].end()){
         yyerror("multiple declaration of same variable");
         return;
     }
-    symbolEntry* se = new symbolEntry(strdup(p->id.i), p->id.type, sytyp, lvl, numOfVars++);
+    if(sytyp == "Function")
+        func_names.push_back(p->id.i);
+    symbolEntry* se = new symbolEntry(strdup(p->id.i), p->id.type, sytyp, lvl, numOfVars++, fn);
     symbol_table[lvl].insert({{strdup(p->id.i),numOfVars}, *se});
     temp_table[lvl].insert({strdup(p->id.i), *se});
 }
+
 /*
 {
 int x = 0;
@@ -362,5 +509,19 @@ while(1)
         }
         print 100;
     }
+}
+// function test case
+int x = 5;
+int my_func(char r = 5, bool v){
+    int y = x;
+    int x = 6;
+    return x+y+r+v;
+}
+char f = my_func(5,3);
+char p = my_func(my_func(x,x),3);
+char my_fun(char r, bool v){
+    int y = x;
+    int x = 6;
+    return my_fun(x,y) + my_func(v,r);
 }
 */

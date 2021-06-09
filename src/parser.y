@@ -45,6 +45,7 @@ std::vector<std::string> msgs;
 %token <sIndex> VARIABLE
 %token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT CONST VOID BOOL_TYPE CHAR_TYPE INT_TYPE FLOAT_TYPE RETURN CONTINUE BREAK
 %token BLOCK_STRUCTURE DECL DECL_CONST ASSIGN ASSIGN_CONST
+%token PARAM_LIST ARG_LIST VOID_FUNC FUNC_DEC CAL
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -92,8 +93,8 @@ stmt:
         | PRINT expr ';'                                         { $$ = opr(PRINT, 1, $2); }
         | WHILE '(' expr ')' stmt                                { $$ = opr(WHILE, 2, $3, $5); }
         | decl ';'                                               { $$ = $1; } // req
-        | typ VARIABLE '(' param_list ')' stmt                   { $$ = NULL; } 
-        | VOID VARIABLE '(' param_list ')' stmt                   { $$ = NULL; } 
+        | typ VARIABLE '(' param_list ')'  stmt                  { $$ = opr(FUNC_DEC, 3, new_id(FUNC_DEC, 2, $1, $2), $4, $6); } 
+        | VOID VARIABLE '(' param_list ')' stmt                  { $$ = opr(VOID_FUNC, 3, id($2), $4, $6); } 
         | RETURN expr ';'                                        { $$ = opr(RETURN, 1, $2); }
         | RETURN ';'                                             { $$ = opr(RETURN, 0); }
         | REPEAT stmt  UNTIL '(' expr ')' ';'                    { $$ = opr(REPEAT, 2, $2, $5); }
@@ -106,15 +107,15 @@ stmt:
         ;
 
 param_list:
-        decl                                                     { $$ = NULL; }
-        | param_list ',' decl                                    { $$ = NULL; }
-        | /* NULL */                                             { $$ = NULL; }
+        decl                                                     { $$ = $1; }
+        | decl ',' param_list                                    { $$ = opr(PARAM_LIST, 2, $1, $3); }
+        | /* NULL */                                             { $$ = opr(PARAM_LIST,0); }
         ;
 
 arg_list:
-        expr                                                     { $$ = NULL; }
-        | arg_list ',' expr                                { $$ = NULL; }
-        | /* NULL */                                             { $$ = NULL; }
+        expr                                                     { $$ = opr(ARG_LIST, 1, $1); }
+        | expr ',' arg_list                                      { $$ = opr(ARG_LIST, 2, $1, $3);  }
+        | /* NULL */                                             { $$ = opr(ARG_LIST,0); }
         ;
 
 switch_stmt:
@@ -163,7 +164,7 @@ expr:
         | CHAR                      { $$ = con(CHAR_TYPE, $1); }
         | BOOL                      { $$ = con(BOOL_TYPE, $1); }
         | VARIABLE                  { $$ = id($1); }
-        | VARIABLE '(' arg_list ')' { $$ = NULL; }
+        | VARIABLE '(' arg_list ')' { $$ = opr(CAL, 2, id($1), $3); }
         | VARIABLE '=' expr         { $$ = opr('=', 2, id($1), $3); }
         | VARIABLE PLUS_EQ expr     { $$ = opr('=', 2, id($1), opr('+', 2, id($1), $3)); }
         | VARIABLE MINUS_EQ expr    { $$ = opr('=', 2, id($1), opr('-', 2, id($1), $3)); }

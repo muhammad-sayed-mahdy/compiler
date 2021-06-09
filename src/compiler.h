@@ -56,11 +56,11 @@ typedef struct switchStatement{
 struct symbolEntry{
     std::string name;
     int type; // int, float, ..
-    std::string symbolType; // function, variable, constant
+    std::string symbolType, funcName; // function, variable, constant
     int scope;
     int timestamp;
-    symbolEntry(std::string nm, int ty, std::string sty, int sc, int ts){
-        name = nm, type = ty, symbolType = sty, scope = sc, timestamp = ts;
+    symbolEntry(std::string nm, int ty, std::string sty, int sc, int ts, std::string fn){
+        name = nm, type = ty, symbolType = sty, scope = sc, timestamp = ts, funcName = fn;
     }
 };
 
@@ -80,7 +80,11 @@ Scope   symbolType      Type      Name
 extern std::vector<std::string> msgs;
 const int MAX_LEVEL = 101;
 static std::map<std::pair<std::string,int>, symbolEntry> symbol_table[MAX_LEVEL];
-std::string intToType(int type);
+
+static std::vector<std::string> func_names;
+static std::map<std::string, std::vector<int>> parm_types;
+
+std::string intToType(int type, int f = 0);
 bool isIntOper(int oper);
 bool isRelationalOper(int oper);
 bool isLogicalOper(int oper);
