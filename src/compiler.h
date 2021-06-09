@@ -90,3 +90,5 @@ bool isRelationalOper(int oper);
 bool isLogicalOper(int oper);
 void yyerror(const std::string& s);
 void addVar(nodeType* p, std::string sytyp);
+int gtVarType(nodeType* p);
+int gtVarScope(nodeType* p);

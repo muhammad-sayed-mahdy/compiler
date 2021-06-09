@@ -36,14 +36,10 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
         break;
     case typeId:
         {
-            int i = lvl;
-            for(; ~i; --i){
-                auto itr = temp_table[i].find(strdup(p->id.i));
-                if(itr != temp_table[i].end()){
-                    p->id.type = itr->second.type;
-                    sprintf(buff, "\tpush_%s\t%s_%d\n", intToType(p->id.type).c_str(), p->id.i, i); msgs.push_back(buff);
-                    return p->id.type;
-                }
+            int ty = gtVarType(p);
+            if(ty != -1){
+                sprintf(buff, "\tpush_%s\t%s_%d\n", intToType(ty).c_str(), p->id.i, gtVarScope(p)); msgs.push_back(buff);
+                return ty;
             }
             yyerror("use of undeclared variable");
             return VOID;
@@ -81,6 +77,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             is_parm = 0;
             if(p->opr.op[2]->opr.oper == BLOCK_STRUCTURE)
                 ex(p->opr.op[2]->opr.op[0]);
+            else ex(p->opr.op[2]);
             temp_table[lvl].clear();
             lvl -= 1;
             msgs.push_back("ENDP\t" + fnm + "\n");
@@ -103,6 +100,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             is_parm = 0;
             if(p->opr.op[2]->opr.oper == BLOCK_STRUCTURE)
                 ex(p->opr.op[2]->opr.op[0]);
+            else ex(p->opr.op[2]);
             temp_table[lvl].clear();
             lvl -= 1;
             msgs.push_back("ENDP\t" + fnm + "\n");
@@ -224,7 +222,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             sprintf(buff, "\tJMP\tL%03d\n", contLbl);msgs.push_back(buff);
             break;
         case BREAK:
-            if (contLbl == -1)
+            if (breakLbl == -1)
                 yyerror("break statement not within loop or switch");
             sprintf(buff, "\tJMP\tL%03d\n", breakLbl);msgs.push_back(buff);
             break;
@@ -245,7 +243,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             temp_table[lvl].clear();
             lvl -= 1;
             break;
-        case REPEAT:
+        case DO:
             lvl += 1;
             mx_lvl = std::max(mx_lvl, lvl);
             sprintf(buff, "L%03d:\n", lbl1 = lbl++);msgs.push_back(buff);
@@ -257,7 +255,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             type = ex(p->opr.op[1]);
             if (type != BOOL_TYPE)
                 msgs.push_back("\t"+intToType(type)+"_TO_BOOL\n");
-            sprintf(buff, "\tJZ\tL%03d\n", lbl1);msgs.push_back(buff);
+            sprintf(buff, "\tJNZ\tL%03d\n", lbl1);msgs.push_back(buff);
             sprintf(buff, "L%03d:\n", lbl3);msgs.push_back(buff);
             temp_table[lvl].clear();
             lvl -= 1;
@@ -313,6 +311,35 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             temp_table[lvl].clear();
             lvl -= 1;
             break;
+        case SWITCH:
+            {
+                int fstlbl = lbl;
+                for (int i = 0; i < p->opr.op[1]->con.value.valInt; i++)
+                {
+                    if(p->opr.op[2+i*3]->con.value.valInt == CASE){
+                        ex(p->opr.op[3+i*3]);
+                        sprintf(buff, "\tJNZ\tL%03d\n", lbl++);msgs.push_back(buff);
+                    }
+                    else{
+                        sprintf(buff, "\tJMP\tL%03d\n", lbl++);msgs.push_back(buff);
+                    }
+                }
+                sprintf(buff, "\tJMP\tL%03d\n", lbl++);msgs.push_back(buff);
+                for (int i = 0; i < p->opr.op[1]->con.value.valInt; i++)
+                {
+                    sprintf(buff, "L%03d\n", fstlbl+i);msgs.push_back(buff);
+                    lvl += 1;
+                    mx_lvl = std::max(mx_lvl, lvl);
+                    if(p->opr.op[2+i*3]->con.value.valInt == CASE)
+                        ex(p->opr.op[4+i*3], -1, fstlbl+p->opr.op[1]->con.value.valInt);
+                    else
+                        ex(p->opr.op[3+i*3], -1, fstlbl+p->opr.op[1]->con.value.valInt);
+                    temp_table[lvl].clear();
+                    lvl -= 1;
+                }
+                sprintf(buff, "L%03d\n", fstlbl+p->opr.op[1]->con.value.valInt);msgs.push_back(buff);
+            }
+            break;
         case PRINT:     
             type = ex(p->opr.op[0]);
             sprintf(buff, "\tPRINT_%s\n", intToType(type).c_str());msgs.push_back(buff);
@@ -358,6 +385,34 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             ex(p->opr.op[0], contLbl, breakLbl);
             ex(p->opr.op[1], contLbl, breakLbl);
             return VOID;
+        case PRE_INC:
+        {
+            int sc = gtVarScope(p->opr.op[0]), ty = gtVarType(p->opr.op[0]);
+            msgs.push_back("\tINC_" + intToType(ty) + "\t" + p->opr.op[0]->id.i + "\n");
+            ex(p->opr.op[0]);
+            break;
+        }
+        case POST_INC:
+        {
+            ex(p->opr.op[0]);
+            int sc = gtVarScope(p->opr.op[0]), ty = gtVarType(p->opr.op[0]);
+            msgs.push_back("\tINC_" + intToType(ty) + "\t" + p->opr.op[0]->id.i + "\n");
+            break;
+        }
+        case PRE_DEC:
+        {
+            int sc = gtVarScope(p->opr.op[0]), ty = gtVarType(p->opr.op[0]);
+            msgs.push_back("\tDEC_" + intToType(ty) + "\t" + p->opr.op[0]->id.i + "\n");
+            ex(p->opr.op[0]);
+            break;
+        }
+        case POST_DEC:
+        {
+            ex(p->opr.op[0]);
+            int sc = gtVarScope(p->opr.op[0]), ty = gtVarType(p->opr.op[0]);
+            msgs.push_back("\tDEC_" + intToType(ty) + "\t" + p->opr.op[0]->id.i + "\n");
+            break;
+        }
         default:
             type1 = ex(p->opr.op[0]);
             int sz1 = msgs.size();
@@ -485,33 +540,39 @@ void addVar(nodeType* p, std::string sytyp){
     temp_table[lvl].insert({strdup(p->id.i), *se});
 }
 
-/*
-{
-int x = 0;
-char y = x;
-{
-char z = y+x;
-}
-const float n = x;
-x = 5;
-}
-*/
-/*
-{
-while(1)
-    {
-        for (int i = 0; i < 5; i+=1)
-        {
-            int x = 5;
-            int i = 3;
-            if (i == 2){
-                int i = 6;
-                break;
-            }
+
+int gtVarType(nodeType* p){
+    int i = lvl;
+    for(; ~i; --i){
+        auto itr = temp_table[i].find(strdup(p->id.i));
+        if(itr != temp_table[i].end()){
+            return itr->second.type;
         }
-        print 100;
     }
+    return -1;
 }
+int gtVarScope(nodeType* p){
+    int i = lvl;
+    for(; ~i; --i){
+        auto itr = temp_table[i].find(strdup(p->id.i));
+        if(itr != temp_table[i].end()){
+            break;
+        }
+    }
+    return i;
+}
+
+
+/*
+    int i = lvl;
+    for(; ~i; --i){
+        auto itr = temp_table[i].find(strdup(p->id.i));
+        if(itr != temp_table[i].end()){
+            p->id.type = itr->second.type;
+            sprintf(buff, "\tpush_%s\t%s_%d\n", intToType(p->id.type).c_str(), p->id.i, i); msgs.push_back(buff);
+            return p->id.type;
+        }
+    }
 // function test case
 int x = 5;
 int my_func(char r = 5, bool v){

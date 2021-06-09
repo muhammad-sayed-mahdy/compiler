@@ -43,9 +43,10 @@ std::vector<std::string> msgs;
 %token <cValue> CHAR
 %token <bValue> BOOL
 %token <sIndex> VARIABLE
-%token WHILE IF PRINT FOR REPEAT UNTIL SWITCH CASE DEFAULT CONST VOID BOOL_TYPE CHAR_TYPE INT_TYPE FLOAT_TYPE RETURN CONTINUE BREAK
+%token INCR DECR WHILE IF PRINT FOR DO SWITCH CASE DEFAULT CONST VOID BOOL_TYPE CHAR_TYPE INT_TYPE FLOAT_TYPE RETURN CONTINUE BREAK
 %token BLOCK_STRUCTURE DECL DECL_CONST ASSIGN ASSIGN_CONST
 %token PARAM_LIST ARG_LIST VOID_FUNC FUNC_DEC CAL
+%token POST_INC POST_DEC PRE_INC PRE_DEC
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -97,7 +98,7 @@ stmt:
         | VOID VARIABLE '(' param_list ')' stmt                  { $$ = opr(VOID_FUNC, 3, id($2), $4, $6); } 
         | RETURN expr ';'                                        { $$ = opr(RETURN, 1, $2); }
         | RETURN ';'                                             { $$ = opr(RETURN, 0); }
-        | REPEAT stmt  UNTIL '(' expr ')' ';'                    { $$ = opr(REPEAT, 2, $2, $5); }
+        | DO stmt  WHILE '(' expr ')' ';'                        { $$ = opr(DO, 2, $2, $5); }
         | FOR '(' expr ';' expr ';' expr ')' stmt                { $$ = opr(FOR, 4, $3, $5, $7, $9); }
         | FOR '(' decl ';' expr ';' expr ')' stmt                { $$ = opr(FOR, 4, $3, $5, $7, $9); }
         | SWITCH '(' expr ')' '{' switch_stmt '}'                { $$ = switchOpr( $3, $6); }
@@ -121,9 +122,9 @@ arg_list:
         ;
 
 switch_stmt:
-            CASE const_expr ':' stmt                                { $$ = conc(CASE, $2, $4, NULL);}
-        | CASE const_expr ':' stmt switch_stmt                      { $$ = conc(CASE, $2, $4, $5);}
-        | DEFAULT ':' stmt                                          { $$ = conc(DEFAULT, NULL, $3, NULL);}
+            CASE const_expr ':' stmt_list                                { $$ = conc(CASE, $2, $4, NULL);}
+        | CASE const_expr ':' stmt_list switch_stmt                      { $$ = conc(CASE, $2, $4, $5);}
+        | DEFAULT ':' stmt_list                                               { $$ = conc(DEFAULT, NULL, $3, NULL);}
         ;
 
 stmt_list:
@@ -166,6 +167,10 @@ expr:
         | CHAR                      { $$ = con(CHAR_TYPE, $1); }
         | BOOL                      { $$ = con(BOOL_TYPE, $1); }
         | VARIABLE                  { $$ = id($1); }
+        | INCR VARIABLE             { $$ = opr(PRE_INC,1,id($2)); }
+        | VARIABLE INCR             { $$ = opr(POST_INC,1,id($1)); }
+        | DECR VARIABLE             { $$ = opr(PRE_DEC,1,id($2)); }
+        | VARIABLE DECR             { $$ = opr(POST_DEC,1,id($1)); }
         | VARIABLE '(' arg_list ')' { $$ = opr(CAL, 2, id($1), $3); }
         | VARIABLE '=' expr         { $$ = opr('=', 2, id($1), $3); }
         | VARIABLE PLUS_EQ expr     { $$ = opr('=', 2, id($1), opr('+', 2, id($1), $3)); }
@@ -320,18 +325,21 @@ nodeType *switchOpr(nodeType* exp, struct switchStatement * ss) {
     p->opr.op = new nodeType* [nops];
     p->opr.op[0] = exp;
     p->opr.op[1] = new nodeType();
+    p->opr.op[1]->type = typeCon;
     p->opr.op[1]->con.value.valInt = casesNo;
     while(ss){
         tmp = ss;
         if(ss->oper == DEFAULT){
             p->opr.op[i] = new nodeType();
+            p->opr.op[i]->type = typeCon;
             p->opr.op[i++]->con.value.valInt = DEFAULT;
             p->opr.op[i++] = ss->stmnt;
         }
         else{
             p->opr.op[i] = new nodeType();
+            p->opr.op[i]->type = typeCon;
             p->opr.op[i++]->con.value.valInt = CASE;
-            p->opr.op[i++] = ss->exp;
+            p->opr.op[i++] = opr(EQ, 2, exp, ss->exp);
             p->opr.op[i++] = ss->stmnt;
         }
         ss = ss->nxt;
@@ -343,11 +351,11 @@ nodeType *switchOpr(nodeType* exp, struct switchStatement * ss) {
 
 
 void freeNode(nodeType *p) {
-    int i;
-
+    int i = 0;;
     if (!p) return;
     if (p->type == typeOpr) {
-        for (i = 0; i < p->opr.nops; i++)
+        if(p->opr.oper == SWITCH) i++;
+        for (; i < p->opr.nops; i++)
             freeNode(p->opr.op[i]);
         delete[] p->opr.op;
     } else if (p->type == typeId) {
