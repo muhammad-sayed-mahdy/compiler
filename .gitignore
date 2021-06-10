@@ -38,3 +38,5 @@ parser.cpp
 parser.hpp
 data/*.quad
 data/*.txt
+data/*/*/*.quad
+data/*/*/*.txt

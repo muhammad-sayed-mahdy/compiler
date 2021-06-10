@@ -1,34 +1,30 @@
-void main()
+int half(int x)
 {
+	return x/2;
+}
 
-  int b = 5;
-  for (int i = 0; i < 10; i--)
-  {
-    int b = 10;
-  }
-  int x = 3;
-  int y = x++ + 2*3 + ++x*4;
-
-  while (x < 20)
-  {
-    x++;
-    b = 3;
-  }
-
-  x = 0;
-
-  do
-  {
-    x++;
-  } while (x < 20);
-
-  switch (x)
-  {
-  case 1:
-    x = 10; 
-    break;
-
-  default:
-    break;
-  }
+int main() 
+{
+    int t = 2;
+    while (t--)
+    {
+        int n = 2;
+        bool found = 0;
+        for (int i = 0; i < n && !found; i+=1)
+        {
+            int num = 9;
+            int s = half(num);
+            if (s*2 == num)
+			{
+                found = 1;
+				break;
+			}
+        }
+        if (found)
+			print 'Y';
+		else
+			print 'N';
+    }
+    
+    return 0;
 }

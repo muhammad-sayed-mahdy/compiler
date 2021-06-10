@@ -8,6 +8,7 @@ extern FILE* yyin;
 extern std::vector<std::string> msgs;
 extern bool ERRORS;
 void printSymbolTable();
+int yyparse (void);
 
 int main(int argc, char** argv)
 {

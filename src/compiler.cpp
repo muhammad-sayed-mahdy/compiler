@@ -21,16 +21,16 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
     case typeCon:       
         switch(p->con.type){
             case INT_TYPE: 
-                sprintf(buff, "\tpush_int\t%d\n", p->con.value.valInt);msgs.push_back(buff);
+                sprintf(buff, "\tPUSH_INT\t%d\n", p->con.value.valInt);msgs.push_back(buff);
                 return INT_TYPE;
             case CHAR_TYPE: 
-                sprintf(buff, "\tpush_char\t'%c'\n", p->con.value.valChar);msgs.push_back(buff);
+                sprintf(buff, "\tPUSH_CHAR\t'%c'\n", p->con.value.valChar);msgs.push_back(buff);
                 return CHAR_TYPE;
             case BOOL_TYPE: 
-                sprintf(buff, "\tpush_bool\t%s\n", p->con.value.valBool? "true" : "false");msgs.push_back(buff);
+                sprintf(buff, "\tPUSH_BOOL\t%s\n", p->con.value.valBool? "true" : "false");msgs.push_back(buff);
                 return BOOL_TYPE;
             case FLOAT_TYPE: 
-                sprintf(buff, "\tpush_float\t%f\n", p->con.value.valFloat);msgs.push_back(buff);
+                sprintf(buff, "\tPUSH_FLOAT\t%f\n", p->con.value.valFloat);msgs.push_back(buff);
                 return FLOAT_TYPE;
         }
         break;
@@ -38,7 +38,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
         {
             int ty = gtVarType(p);
             if(ty != -1){
-                sprintf(buff, "\tpush_%s\t%s_%d\n", intToType(ty).c_str(), p->id.i, gtVarScope(p)); msgs.push_back(buff);
+                sprintf(buff, "\tPUSH_%s\t%s_%d\n", intToType(ty).c_str(), p->id.i, gtVarScope(p)); msgs.push_back(buff);
                 return ty;
             }
             yyerror("use of undeclared variable");
@@ -180,21 +180,21 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             addVar(p->opr.op[0], "Variable");
             if(is_parm){
                 int ty = p->opr.op[0]->id.type; parm_types[func_names.back()].push_back(ty);
-                sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, 1);msgs.push_back(buff);
+                sprintf(buff, "\tPOP_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, 1);msgs.push_back(buff);
             }
             break;
         case DECL_CONST:
             addVar(p->opr.op[0], "Constant");
             if(is_parm){
                 int ty = p->opr.op[0]->id.type; parm_types[func_names.back()].push_back(ty);
-                sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, 1);msgs.push_back(buff);
+                sprintf(buff, "\tPOP_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, 1);msgs.push_back(buff);
             }
             break;
         case ASSIGN:
             addVar(p->opr.op[0], "Variable");
             if(is_parm){
                 int ty = p->opr.op[0]->id.type; parm_types[func_names.back()].push_back(ty);
-                sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, 1);msgs.push_back(buff);
+                sprintf(buff, "\tPOP_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, 1);msgs.push_back(buff);
                 yyerror("default function parameters are not allowed");
                 break;
             }
@@ -206,7 +206,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             addVar(p->opr.op[0], "Constant");
             if(is_parm){
                 int ty = p->opr.op[0]->id.type; parm_types[func_names.back()].push_back(ty);
-                sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, 1);msgs.push_back(buff);
+                sprintf(buff, "\tPOP_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, 1);msgs.push_back(buff);
                 yyerror("default function parameters are not allowed");
                 break;
             }
@@ -357,7 +357,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
                         type2 = p->opr.op[0]->id.type;
                         if (type1 != type2)
                             msgs.push_back("\t" + intToType(type1) + "_TO_" + intToType(type2) + "\n");
-                        sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(type2).c_str(), p->opr.op[0]->id.i, i);msgs.push_back(buff);
+                        sprintf(buff, "\tPOP_%s\t%s_%d\n", intToType(type2).c_str(), p->opr.op[0]->id.i, i);msgs.push_back(buff);
                         return type2;
                     }
                 }
@@ -394,7 +394,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             ex(p->opr.op[0]);
             sprintf(buff, "\tINC_%s\n", intToType(ty).c_str());
             msgs.push_back(buff);
-            sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, sc);msgs.push_back(buff);
+            sprintf(buff, "\tPOP_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, sc);msgs.push_back(buff);
             ex(p->opr.op[0]);
             return ty;
         }
@@ -408,7 +408,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             ex(p->opr.op[0]);
             sprintf(buff, "\tINC_%s\n", intToType(ty).c_str());
             msgs.push_back(buff);
-            sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, sc);msgs.push_back(buff);
+            sprintf(buff, "\tPOP_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, sc);msgs.push_back(buff);
             return ty;
         }
         case PRE_DEC:
@@ -420,7 +420,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             ex(p->opr.op[0]);
             sprintf(buff, "\tDEC_%s\n", intToType(ty).c_str());
             msgs.push_back(buff);
-            sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, sc);msgs.push_back(buff);
+            sprintf(buff, "\tPOP_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, sc);msgs.push_back(buff);
             ex(p->opr.op[0]);
             return ty;
         }
@@ -434,7 +434,7 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
             ex(p->opr.op[0]);
             sprintf(buff, "\tDEC_%s\n", intToType(ty).c_str());
             msgs.push_back(buff);
-            sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, sc);msgs.push_back(buff);
+            sprintf(buff, "\tPOP_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, sc);msgs.push_back(buff);
             return ty;
         }
         default:
