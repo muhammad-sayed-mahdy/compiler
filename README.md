@@ -15,8 +15,7 @@ You can also change the input file and run the program after compiling with
 ./src/a.out <input_file> <output_quad_file> <symbol_table_file>
 ```
 
-## For Debugging Segmentation fault
-```
-g++ compiler.cpp parser.cpp lexer.cpp -g -fsanitize=address -fsanitize=undefined -DGLIBCXX_DEBUG
+## GUI
+This compiler has a windows application GUI built with WPF and C#
 
-```
+Note: in the first time you run the GUI, it will prompts you to provide the windows executable of the compiler that is generating by compiling the files.
