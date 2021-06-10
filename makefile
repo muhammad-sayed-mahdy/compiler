@@ -11,8 +11,8 @@ gen:
 	bison src/parser.y -d -o src/parser.cpp
 
 comp:
-	g++ src/main.cpp src/compiler.cpp src/parser.cpp src/lexer.cpp -o src/a.out
+	g++ src/main.cpp src/compiler.cpp src/parser.cpp src/lexer.cpp -o src/a.exe
 
 
 run:
-	./src/a.out data/in.cpp data/out.quad data/symbol_table.txt
+	./src/a.exe data/in.cpp data/out.quad data/symbol_table.txt

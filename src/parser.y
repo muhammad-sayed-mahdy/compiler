@@ -68,7 +68,7 @@ std::vector<std::string> msgs;
 %type <nPtr> stmt expr stmt_list const_expr decl param_list arg_list typ
 %type <swtch> switch_stmt
 
-%define parse.error verbose
+/* %define parse.error verbose */
 %locations
 
 %%
@@ -142,6 +142,7 @@ const_expr:
         | BOOL                              { $$ = con(BOOL_TYPE, $1); }
         | '!' const_expr                    { $$ = opr('!', 1, $2); }
         | '~' const_expr                    { $$ = opr('~', 1, $2); }
+        | '+' const_expr %prec UPLUS              { $$ = opr(UPLUS, 1, $2); }
         | '-' const_expr %prec UMINUS       { $$ = opr(UMINUS, 1, $2); }
         | const_expr OR const_expr          { $$ = opr(OR, 2, $1, $3); }
         | const_expr AND const_expr         { $$ = opr(AND, 2, $1, $3); }

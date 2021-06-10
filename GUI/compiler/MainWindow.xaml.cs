@@ -30,6 +30,7 @@ namespace compiler
 
         private void Compile_Button_Click(object sender, RoutedEventArgs e)
         {
+            Directory.CreateDirectory(@"data\");
             File.WriteAllText(@"data\in.cpp", inputArea.Text);
             if(!File.Exists(@"a.exe"))
             {
@@ -39,12 +40,14 @@ namespace compiler
                 dlg.DefaultExt = ".exe";
                 dlg.Filter = "Executable Files (*.exe)|*.exe";
                 Nullable<bool> result = dlg.ShowDialog();
-                
+
                 if (result == true)
                 {
                     string filename = dlg.FileName;
                     File.Copy(filename, @"a.exe");
                 }
+                else
+                    return;
             }
             var psi = new ProcessStartInfo(@"a.exe")
             {
