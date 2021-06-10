@@ -388,30 +388,54 @@ int ex(nodeType *p, int contLbl = -1, int breakLbl = -1) {
         case PRE_INC:
         {
             int sc = gtVarScope(p->opr.op[0]), ty = gtVarType(p->opr.op[0]);
-            msgs.push_back("\tINC_" + intToType(ty) + "\t" + p->opr.op[0]->id.i + "\n");
+            if(ty == BOOL_TYPE){
+                yyerror("Boolean increment is not allowed");
+            }
             ex(p->opr.op[0]);
-            break;
+            sprintf(buff, "\tINC_%s\n", intToType(ty).c_str());
+            msgs.push_back(buff);
+            sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, sc);msgs.push_back(buff);
+            ex(p->opr.op[0]);
+            return ty;
         }
         case POST_INC:
         {
             ex(p->opr.op[0]);
             int sc = gtVarScope(p->opr.op[0]), ty = gtVarType(p->opr.op[0]);
-            msgs.push_back("\tINC_" + intToType(ty) + "\t" + p->opr.op[0]->id.i + "\n");
-            break;
+            if(ty == BOOL_TYPE){
+                yyerror("Boolean increment is not allowed");
+            }
+            ex(p->opr.op[0]);
+            sprintf(buff, "\tINC_%s\n", intToType(ty).c_str());
+            msgs.push_back(buff);
+            sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, sc);msgs.push_back(buff);
+            return ty;
         }
         case PRE_DEC:
         {
             int sc = gtVarScope(p->opr.op[0]), ty = gtVarType(p->opr.op[0]);
-            msgs.push_back("\tDEC_" + intToType(ty) + "\t" + p->opr.op[0]->id.i + "\n");
+            if(ty == BOOL_TYPE){
+                yyerror("Boolean decrement is not allowed");
+            }
             ex(p->opr.op[0]);
-            break;
+            sprintf(buff, "\tDEC_%s\n", intToType(ty).c_str());
+            msgs.push_back(buff);
+            sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, sc);msgs.push_back(buff);
+            ex(p->opr.op[0]);
+            return ty;
         }
         case POST_DEC:
         {
             ex(p->opr.op[0]);
             int sc = gtVarScope(p->opr.op[0]), ty = gtVarType(p->opr.op[0]);
-            msgs.push_back("\tDEC_" + intToType(ty) + "\t" + p->opr.op[0]->id.i + "\n");
-            break;
+            if(ty == BOOL_TYPE){
+                yyerror("Boolean decrement is not allowed");
+            }
+            ex(p->opr.op[0]);
+            sprintf(buff, "\tDEC_%s\n", intToType(ty).c_str());
+            msgs.push_back(buff);
+            sprintf(buff, "\tpop_%s\t%s_%d\n", intToType(ty).c_str(), p->opr.op[0]->id.i, sc);msgs.push_back(buff);
+            return ty;
         }
         default:
             type1 = ex(p->opr.op[0]);
