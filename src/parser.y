@@ -16,6 +16,7 @@ nodeType *new_id(int oper, int nops, nodeType * typ, char * name, ...);
 nodeType *id(char * i);
 nodeType *types(int i);
 nodeType *con(int typ, ...);
+nodeType * dupNode(nodeType * n);
 struct switchStatement * conc(int oper, nodeType * exp, nodeType * stmnt, struct switchStatement * nxt);
 nodeType *switchOpr(nodeType* exp, struct switchStatement * ss);
 void freeNode(nodeType *p);
@@ -61,6 +62,8 @@ std::vector<std::string> msgs;
 %left '+' '-'
 %left '*' '/' '%'
 %nonassoc UMINUS UPLUS '~' '!'
+%right PRE_INC PRE_DEC
+%left POST_INC POST_DEC
 
 %type <nPtr> stmt expr stmt_list const_expr decl param_list arg_list typ
 %type <swtch> switch_stmt
@@ -167,10 +170,10 @@ expr:
         | CHAR                      { $$ = con(CHAR_TYPE, $1); }
         | BOOL                      { $$ = con(BOOL_TYPE, $1); }
         | VARIABLE                  { $$ = id($1); }
-        | INCR VARIABLE             { $$ = opr(PRE_INC,1,id($2)); }
-        | VARIABLE INCR             { $$ = opr(POST_INC,1,id($1)); }
-        | DECR VARIABLE             { $$ = opr(PRE_DEC,1,id($2)); }
-        | VARIABLE DECR             { $$ = opr(POST_DEC,1,id($1)); }
+        | INCR VARIABLE %prec PRE_INC            { $$ = opr(PRE_INC,1,id($2)); }
+        | VARIABLE INCR %prec POST_INC           { $$ = opr(POST_INC,1,id($1)); }
+        | DECR VARIABLE %prec PRE_DEC            { $$ = opr(PRE_DEC,1,id($2)); }
+        | VARIABLE DECR %prec POST_DEC           { $$ = opr(POST_DEC,1,id($1)); }
         | VARIABLE '(' arg_list ')' { $$ = opr(CAL, 2, id($1), $3); }
         | VARIABLE '=' expr         { $$ = opr('=', 2, id($1), $3); }
         | VARIABLE PLUS_EQ expr     { $$ = opr('=', 2, id($1), opr('+', 2, id($1), $3)); }
@@ -339,7 +342,8 @@ nodeType *switchOpr(nodeType* exp, struct switchStatement * ss) {
             p->opr.op[i] = new nodeType();
             p->opr.op[i]->type = typeCon;
             p->opr.op[i++]->con.value.valInt = CASE;
-            p->opr.op[i++] = opr(EQ, 2, exp, ss->exp);
+            nodeType * pr = dupNode(exp);
+            p->opr.op[i++] = opr(EQ, 2, pr, ss->exp);
             p->opr.op[i++] = ss->stmnt;
         }
         ss = ss->nxt;
@@ -348,15 +352,35 @@ nodeType *switchOpr(nodeType* exp, struct switchStatement * ss) {
     return p;
 }
 
+nodeType * dupNode(nodeType * n){
+    nodeType * p = new nodeType();
+    p->type = n->type;
+    if(n->type == typeId){
+        p->id.i = new char();
+        strcpy(p->id.i, n->id.i);
+        p->id.type = n->id.type;
+        return p;
+    }
+    if(n->type == typeCon){
+        *p = *n;
+        return p;
+    }
+    p->opr.oper = n->opr.oper;
+    p->opr.nops = n->opr.nops;
+    p->opr.op = new nodeType* [n->opr.nops];
+    for(int i = 0; i < n->opr.nops; ++i)
+        p->opr.op[i] = dupNode(n->opr.op[i]);
+    return p;
+}
 
 
 void freeNode(nodeType *p) {
-    int i = 0;;
+    int i = 0;
     if (!p) return;
     if (p->type == typeOpr) {
-        if(p->opr.oper == SWITCH) i++;
-        for (; i < p->opr.nops; i++)
+        for (; i < p->opr.nops; i++){
             freeNode(p->opr.op[i]);
+        }
         delete[] p->opr.op;
     } else if (p->type == typeId) {
         free(p->id.i);
